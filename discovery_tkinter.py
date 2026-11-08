@@ -31,6 +31,11 @@ nav.add(frame2, text="Statistics")
 upgrades = tk.Frame(root, bg="#C4E3F6")  # light blue
 upgrades.grid(row=0, column=2, sticky="nsew")
 
+# Label inside column
+tk.Label(upgrades, text="Upgrades").grid(row=1, column=0, sticky="nsew")
+tk.Label(upgrades, text="Upgrades1").grid(row=1, column=1, sticky="nsew")
+tk.Label(upgrades, text="Upgrades2").grid(row=2, column=0, sticky="nsew")
+tk.Label(clicker, text="Current Croquet").grid(row=1, column=0, sticky="nsew")
 
 def updates():
     color = colors[randint(0, 4)]
