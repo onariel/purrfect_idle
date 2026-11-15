@@ -66,6 +66,7 @@ class GUI:
     def init_upgrade_column(self) -> None:
         y = 0
         print(self.upgrade_column.winfo_width())
+
         for entity_name in self.entities.get_entities():
             frame = tk.Frame(self.upgrade_column, relief="groove", bd=2)
             frame.place(x=0, y=y, width=250, height=70)
@@ -73,12 +74,9 @@ class GUI:
             label = tk.Label(frame, text=entity_name)
             label.place(x=0, y=20, width=60, height=30)
 
-            button = ttk.Button(frame, text="buy", command=self.on_button(entity_name))
+            button = ttk.Button(frame, text="buy", command=lambda entity_name=entity_name :self.on_button(entity_name))
             button.place(x=100, y=20, width=80, height=30)
             y += 70
-
-
-
 
 
 test = GUI()
