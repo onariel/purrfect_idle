@@ -3,12 +3,28 @@
     "name": "Grandma",
     "cps": 5
   },
-  "oui":{
-    "name": "Grandma",
+  "cat-tree":{
+    "name": "Cat Tree",
     "cps": 5
   },
   "catnip":{
-    "name": "catnip",
+    "name": "Catnip",
+    "cps": 50
+  },
+  "ball-of-wool":{
+    "name": "Ball of wool",
+    "cps": 5
+  },
+  "chamourail":{
+    "name": "Chamourail",
+    "cps": 5
+  },
+  "cat-toy":{
+    "name": "Cat Toy",
+    "cps": 50
+  },
+  "Upgrade-with-a-long-name":{
+    "name": "Upgrade with a long name",
     "cps": 50
   }
 }

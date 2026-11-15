@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+
 class JsonMGMT:
     SAVE_PATH = Path("data") / "save.json"
     DEFAULT_DATA = {
@@ -49,6 +50,7 @@ class JsonMGMT:
             target[last_key] = value
         if save:
             self.save()
+
 
 run = JsonMGMT()
 
