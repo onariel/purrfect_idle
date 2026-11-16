@@ -154,7 +154,7 @@ class GUI:
         print("Stats exported")
 
     def open_minigame(self, minigame) -> None:
-        print("opening : ", minigame.NAME)
+        minigame(self.window, self.cats)
 
     def graph_cats(self) -> None:
         # Use to display some graphs via Matplotlib (can be multiple graphs via notebook)

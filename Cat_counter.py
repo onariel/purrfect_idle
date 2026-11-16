@@ -45,8 +45,22 @@ class CatCounter:
             self.cats_per_second = round(self.cats_per_second / 1000, 12)
             self.cats_per_second_power_of_ten += 3
 
+    def get_cats_per_click(self) -> tuple:
+        return round(self.cats_per_click, 3), self.cats_per_click_power_of_ten
+
+    def add_cats(self, nb_cats: tuple) -> None:
+        self.cats += round(nb_cats[0] * (10 ** (nb_cats[1] - self.power_of_ten)), 12)
+
+        while self.cats / 1000 >= 1:
+            self.cats = round(self.cats / 1000, 12)
+            self.power_of_ten += 3
+
     def remove_cats(self, nb_cats: tuple) -> None:
-        self.cats -= nb_cats[0] / (10 ** (self.cats_per_second_power_of_ten - nb_cats[1]))
+        self.cats -= round(nb_cats[0] * (10 ** (nb_cats[1] - self.power_of_ten)), 12)
+
+        while 0 < self.cats < 1:
+            self.cats = round(self.cats * 1000, 12)
+            self.power_of_ten -= 3
 
     def click(self) -> None:
         self.cats += round(self.cats_per_click * (10 ** (self.cats_per_click_power_of_ten - self.power_of_ten)), 12)
