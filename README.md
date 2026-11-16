@@ -12,5 +12,5 @@ To help you in this endeavor, you will recruit a wide variety of helpful tools a
 The game will be made using Python and TKinter. Your data (number of cats, which upgrade at which level, etc...) will be saved on a json file. Some graphs will be generated using Matplotlib.
 
 Data manipulation & File manipulation: Json save file edit and calling  
-Graphical Interface: TKinter  (graphs with Matplotlib)
+Graphical Interface: TKinter  (graphs with Matplotlib)  
 Report Generation: Live report (statistic page) and review report (feedback on the run at the end)
