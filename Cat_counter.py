@@ -1,4 +1,4 @@
-class CatCounter():
+class CatCounter:
     cats: float
     power_of_ten: int
 
@@ -15,6 +15,9 @@ class CatCounter():
         self.cats_per_second = save["cats_per_seconds"]["cats"]
         self.cats_per_second_power_of_ten = save["cats_per_seconds"]["power_of_ten"]
 
+        self.cats_per_click = save["cats_per_click"]["cats"]
+        self.cats_per_click_power_of_ten = save["cats_per_click"]["power_of_ten"]
+
 
     def get_cats(self) -> tuple:
         return round(self.cats, 3), self.power_of_ten
@@ -28,7 +31,7 @@ class CatCounter():
         self.cats += round(
             (self.cats_per_second / (10 ** (self.power_of_ten - self.cats_per_second_power_of_ten))) * (time / 1000), 12)
 
-        if self.cats // 1000 >= 1:
+        if self.cats / 1000 >= 1:
             self.cats = round(self.cats / 1000, 12)
             self.power_of_ten += 3
         if self.cats < 1 and self.cats != 0:
@@ -45,5 +48,5 @@ class CatCounter():
     def remove_cats(self, nb_cats: tuple) -> None:
         self.cats -= nb_cats[0] / (10 ** (self.cats_per_second_power_of_ten - nb_cats[1]))
 
-    def update_cats_flat(self, value: tuple) -> None:
-        self.cats += round(value * (10 ** (self.power_of_ten - self.cats_per_second_power_of_ten)), 12)
+    def click(self) -> None:
+        self.cats += round(self.cats_per_click * (10 ** (self.cats_per_click_power_of_ten - self.power_of_ten)), 12)

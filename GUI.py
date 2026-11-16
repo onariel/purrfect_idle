@@ -97,7 +97,6 @@ class GUI:
     def init_clicker_column(self) -> None:
         self.clicker_column.columnconfigure(0, weight=1)
 
-        # label_cat_seconds=tk.Label(self.clicker_column, text=str(cats.get_cats()[0]) + "*10**" + str(cats.get_cats()[1]))
         label_cat_seconds = tk.Label(self.clicker_column, text="test")
         label_cat_seconds.grid(row=0, column=0, pady=10)
 
@@ -108,15 +107,15 @@ class GUI:
         self.update_clicker_column(label_cat_seconds)
 
     def update_clicker_column(self, label_cat_seconds: tk.Label) -> None:
-        self.cats.update_cats(1000)  # 1000 ms
+        self.cats.update_cats(50)  # 1000 ms
         mantissa, exponent = self.cats.get_cats()
         label_cat_seconds.config(text=f"{mantissa}*10**{exponent}")
 
         # Extra arguments after the callback are passed to it
-        label_cat_seconds.after(1000, self.update_clicker_column, label_cat_seconds)
+        label_cat_seconds.after(50, self.update_clicker_column, label_cat_seconds)
 
     def on_button_clicker_column(self):
-        print("Clicked")
+        self.cats.click()
 
 # OLD - keep for now as temporary if needed
 # TO BE CLEAN LATER
