@@ -3,6 +3,7 @@ from tkinter import ttk
 from Cat_counter import CatCounter
 from entities.Entities import Entities
 from json_mgmt import JsonMGMT
+from minigames.minigames import Minigames
 
 
 class GUI:
@@ -21,10 +22,11 @@ class GUI:
 
     def __init__(self, save: JsonMGMT) -> None:
         """Initialize the GUI """
-        self.save=save
+        self.save = save
         self.cats = CatCounter(save.data)
         # The entities variable is a dict with every entities existing
         self.entities = Entities(self.cats)
+        self.minigames = Minigames()
 
         # Initializing the window
         self.window = tk.Tk()
@@ -45,16 +47,15 @@ class GUI:
         self.information_column = ttk.Notebook(self.window)
         self.information_column.grid(row=0, column=1, sticky="nsew")
 
-        entities_bought = tk.Frame(self.information_column)  # light yellow
-        statistics = tk.Frame(self.information_column)
-        self.information_column.add(entities_bought, text="Game")
-        self.information_column.add(statistics, text="Statistics")
+        self.entities_bought = tk.Frame(self.information_column)
+        self.statistics = tk.Frame(self.information_column)
 
         # Right column: upgrades
-        self.upgrade_column = tk.Frame(self.window)  # light blue
+        self.upgrade_column = tk.Frame(self.window)
         self.upgrade_column.grid(row=0, column=2, sticky="nsew")
 
         self.init_upgrade_column()
+        self.init_main_column()
         self.init_clicker_column()
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -74,6 +75,94 @@ class GUI:
     def on_close(self) -> None:
         self.save_file()
         self.window.destroy()
+
+    """
+    Clicker Column
+    """
+
+    def init_clicker_column(self) -> None:
+        self.clicker_column.columnconfigure(0, weight=1)
+
+        label_cat_seconds = tk.Label(self.clicker_column, text="test")
+        label_cat_seconds.grid(row=0, column=0, pady=10)
+
+        button_clicker = ttk.Button(self.clicker_column, text='Click Me !!',
+                                    command=self.on_button_clicker_column)
+        button_clicker.grid(row=1, column=0, pady=10)
+
+        self.update_clicker_column(label_cat_seconds)
+
+    def update_clicker_column(self, label_cat_seconds: tk.Label) -> None:
+        self.cats.update_cats(50)  # 50 ms
+        mantissa, exponent = self.cats.get_cats()
+        label_cat_seconds.config(text=f"{mantissa}*10**{exponent}")
+        label_cat_seconds.after(50, self.update_clicker_column, label_cat_seconds)
+
+    def on_button_clicker_column(self):
+        self.cats.click()
+
+    """
+    Main Column
+    """
+
+    def init_main_column(self) -> None:
+        self.information_column.add(self.entities_bought, text="Game")
+        self.information_column.add(self.statistics, text="Statistics")
+
+        self.init_game_section()
+        self.init_stats_section()
+
+    def init_game_section(self) -> None:
+        self.entities_bought.columnconfigure(0, weight=1)
+
+        frame = tk.Frame(self.entities_bought)
+        frame.grid(row=0, column=0, sticky="nsew", padx=10)
+        frame.columnconfigure(0, weight=1)
+
+        title_label = tk.Label(frame, text="Minigames to play in order to gain more cats !")
+        title_label.grid(row=0, column=0, pady=10)
+
+        for row, game in enumerate(self.minigames.get_minigames()):
+            card = tk.Frame(frame, relief="groove", bd=2)
+            card.grid(row=row + 1, column=0, sticky="ew", pady=5)
+            card.columnconfigure(0, weight=1)
+
+            name_label = tk.Label(card, text=game.NAME, anchor="w", font=("TkDefaultFont", 11, "bold"))
+            name_label.grid(row=0, column=0, sticky="ew", padx=5, pady=(5, 0))
+
+            button = ttk.Button(card, text="Play",
+                                command=lambda minigame=game: self.open_minigame(minigame))
+            button.grid(row=0, column=1, rowspan=2, sticky="e", padx=5)
+
+    def init_stats_section(self) -> None:
+        self.statistics.columnconfigure(0, weight=1)
+
+        frame = tk.Frame(self.statistics)
+        frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        frame.columnconfigure(0, weight=1)
+
+        title_label = tk.Label(frame, text="You can view here the statistics of your game.")
+        title_label.grid(row=0, column=0, columnspan=2, pady=10)
+
+        graph_btn = tk.Button(frame, text="Open the Cat graph", command=lambda: self.graph_cats())
+        graph_btn.grid(row=1, column=0, sticky="w", pady=10)
+
+        export_btn = tk.Button(frame, text="Export", command=lambda: self.export_stats())
+        export_btn.grid(row=1, column=1, pady=10, sticky="e")
+
+    def export_stats(self) -> None:
+        print("Stats exported")
+
+    def open_minigame(self, minigame) -> None:
+        print("opening : ", minigame.NAME)
+
+    def graph_cats(self) -> None:
+        # Use to display some graphs via Matplotlib (can be multiple graphs via notebook)
+        # Sone graph ideas:
+        # - Cats per second from each entity (bar chart)
+        # - total cps over time (need to implement a time in the save)
+        # - minigame graphs (Win/loss/draw ratio)
+        print("Graph of cats")
 
     """
     Upgrade Column
@@ -100,41 +189,6 @@ class GUI:
             button = ttk.Button(frame, text="buy",
                                 command=lambda entity_name=entity_name: self.on_button_upgrade_column(entity_name))
             button.grid(row=1, column=1, sticky="e", padx=5, pady=5)
-
-    """
-    Main Column
-    """
-
-    def init_main_column(self) -> None:
-        pass
-
-    """
-    Clicker Column
-    """
-
-    def init_clicker_column(self) -> None:
-        self.clicker_column.columnconfigure(0, weight=1)
-
-        label_cat_seconds = tk.Label(self.clicker_column, text="test")
-        label_cat_seconds.grid(row=0, column=0, pady=10)
-
-        button_clicker = ttk.Button(self.clicker_column, text='Click Me !!',
-                                    command=self.on_button_clicker_column)
-        button_clicker.grid(row=1, column=0, pady=10)
-
-        self.update_clicker_column(label_cat_seconds)
-
-    def update_clicker_column(self, label_cat_seconds: tk.Label) -> None:
-        self.cats.update_cats(50)  # 1000 ms
-        mantissa, exponent = self.cats.get_cats()
-        label_cat_seconds.config(text=f"{mantissa}*10**{exponent}")
-
-
-        # Extra arguments after the callback are passed to it
-        label_cat_seconds.after(50, self.update_clicker_column, label_cat_seconds)
-
-    def on_button_clicker_column(self):
-        self.cats.click()
 
 # OLD - keep for now as temporary if needed
 # TO BE CLEAN LATER
