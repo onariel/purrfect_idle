@@ -18,18 +18,9 @@ class GUI:
     Main GUI
     """
 
-    def init_with_save(self, cats: CatCounter) -> None:
-        """Initialize the GUI with an existing save file"""
-        self.cats = cats
-        self.init()
-
-    def init_without_save(self) -> None:
-        """Initialize the GUI with an empty save file"""
-        self.cats = CatCounter()
-        self.init()
-
-    def init(self) -> None:
+    def __init__(self, save) -> None:
         """Initialize the GUI """
+        self.cats = CatCounter(save)
         # The entities variable is a dict with every entities existing
         self.entities = Entities(self.cats)
 

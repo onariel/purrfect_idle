@@ -7,11 +7,15 @@ class JsonMGMT:
     DEFAULT_DATA = {
         "cats": {
             "cats": 0,
-            "power": 0
+            "power_of_ten": 0
         },
-        "cats_seconds": {
+        "cats_per_seconds": {
             "cats": 0,
-            "power": 0
+            "power_of_ten": 0
+        },
+        "cats_per_click": {
+            "cats": 1,
+            "power_of_ten": 0
         },
         "upgrades": [],
         "entities": []
@@ -52,6 +56,3 @@ class JsonMGMT:
             self.save()
 
 
-run = JsonMGMT()
-
-run.update({"cats": {"cats": 15, "power": 3}})
