@@ -3,7 +3,7 @@ from json_mgmt import *
 
 
 def main():
-    data = JsonMGMT().data
+    data = JsonMGMT()
     run = GUI(data)
 
 

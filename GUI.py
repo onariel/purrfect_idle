@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from Cat_counter import CatCounter
 from entities.Entities import Entities
+from json_mgmt import JsonMGMT
 
 
 class GUI:
@@ -18,9 +19,10 @@ class GUI:
     Main GUI
     """
 
-    def __init__(self, save) -> None:
+    def __init__(self, save: JsonMGMT) -> None:
         """Initialize the GUI """
-        self.cats = CatCounter(save)
+        self.save=save
+        self.cats = CatCounter(save.data)
         # The entities variable is a dict with every entities existing
         self.entities = Entities(self.cats)
 
@@ -55,7 +57,23 @@ class GUI:
         self.init_upgrade_column()
         self.init_clicker_column()
 
+        self.window.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.autosave()
+
         self.window.mainloop()
+
+    def save_file(self) -> None:
+        new_save = self.cats.save_cats_info()
+        self.save.update(new_save)
+
+    def autosave(self) -> None:
+        """Autosave every minutes"""
+        self.save_file()
+        self.window.after(10000, self.autosave)
+
+    def on_close(self) -> None:
+        self.save_file()
+        self.window.destroy()
 
     """
     Upgrade Column
@@ -110,6 +128,7 @@ class GUI:
         self.cats.update_cats(50)  # 1000 ms
         mantissa, exponent = self.cats.get_cats()
         label_cat_seconds.config(text=f"{mantissa}*10**{exponent}")
+
 
         # Extra arguments after the callback are passed to it
         label_cat_seconds.after(50, self.update_clicker_column, label_cat_seconds)

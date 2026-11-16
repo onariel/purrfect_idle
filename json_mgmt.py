@@ -1,3 +1,4 @@
+import copy
 import json
 from pathlib import Path
 
@@ -29,13 +30,14 @@ class JsonMGMT:
             with open(self.SAVE_PATH, "r", encoding="utf-8") as f:
                 return json.load(f)
 
-        data = self.DEFAULT_DATA.copy()
+        data = copy.deepcopy(self.DEFAULT_DATA)
         self.save(data)
         return data
 
     def save(self, data=None):
         if data is None:
             data = self.data
+
         with open(self.SAVE_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
 
@@ -54,5 +56,3 @@ class JsonMGMT:
             target[last_key] = value
         if save:
             self.save()
-
-

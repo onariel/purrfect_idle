@@ -1,6 +1,7 @@
 from Cat_counter import CatCounter
 import json
 
+
 class Entities:
     cps: float = 0
     cats: CatCounter

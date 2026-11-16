@@ -2,7 +2,7 @@ class CatCounter:
     cats: float
     power_of_ten: int
 
-    cats_per_second:float
+    cats_per_second: float
     cats_per_second_power_of_ten: int
 
     cats_per_click: float
@@ -18,7 +18,6 @@ class CatCounter:
         self.cats_per_click = save["cats_per_click"]["cats"]
         self.cats_per_click_power_of_ten = save["cats_per_click"]["power_of_ten"]
 
-
     def get_cats(self) -> tuple:
         return round(self.cats, 3), self.power_of_ten
 
@@ -29,7 +28,8 @@ class CatCounter:
         # This formula calculates the number of cats made in a certain time. First you calculate the number of cats that a second of
         # cat per second will give if you remove the power of tens. Then you have to transform the time given in seconds and multiply the two
         self.cats += round(
-            (self.cats_per_second / (10 ** (self.power_of_ten - self.cats_per_second_power_of_ten))) * (time / 1000), 12)
+            (self.cats_per_second / (10 ** (self.power_of_ten - self.cats_per_second_power_of_ten))) * (time / 1000),
+            12)
 
         if self.cats / 1000 >= 1:
             self.cats = round(self.cats / 1000, 12)
@@ -50,3 +50,13 @@ class CatCounter:
 
     def click(self) -> None:
         self.cats += round(self.cats_per_click * (10 ** (self.cats_per_click_power_of_ten - self.power_of_ten)), 12)
+
+    def save_cats_info(self) -> dict:
+        return {
+            "cats.cats": self.cats,
+            "cats.power_of_ten": self.power_of_ten,
+            "cats_per_seconds.cats": self.cats_per_second,
+            "cats_per_seconds.power_of_ten": self.cats_per_second_power_of_ten,
+            "cats_per_click.cats": self.cats_per_click,
+            "cats_per_click.power_of_ten": self.cats_per_click_power_of_ten,
+        }
