@@ -132,7 +132,7 @@ class GUI:
 
             button = ttk.Button(card, text="Play",
                                 command=lambda minigame=game: self.open_minigame(minigame))
-            button.grid(row=0, column=1, rowspan=2, sticky="e", padx=5)
+            button.grid(row=0, column=1, rowspan=2, sticky="e", padx=5, pady=5)
 
     def init_stats_section(self) -> None:
         self.statistics.columnconfigure(0, weight=1)
@@ -149,6 +149,9 @@ class GUI:
 
         export_btn = tk.Button(frame, text="Export", command=lambda: self.export_stats())
         export_btn.grid(row=1, column=1, pady=10, sticky="e")
+
+        separator = ttk.Separator(frame, orient="horizontal")
+        separator.grid(row=2, column=0, columnspan=2, pady=10, sticky="ew")
 
     def export_stats(self) -> None:
         print("Stats exported")
