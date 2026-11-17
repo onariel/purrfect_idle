@@ -4,6 +4,7 @@ from Cat_counter import CatCounter
 from entities.Entities import Entities
 from json_mgmt import JsonMGMT
 from minigames.minigames import Minigames
+from graph import Graph
 
 
 class GUI:
@@ -157,7 +158,7 @@ class GUI:
         print("Stats exported")
 
     def open_minigame(self, minigame) -> None:
-        minigame(self.window, self.cats)
+        minigame(self.window, self.cats, self.save)
 
     def graph_cats(self) -> None:
         # Use to display some graphs via Matplotlib (can be multiple graphs via notebook)
@@ -165,7 +166,7 @@ class GUI:
         # - Cats per second from each entity (bar chart)
         # - total cps over time (need to implement a time in the save)
         # - minigame graphs (Win/loss/draw ratio)
-        print("Graph of cats")
+        Graph(self.window, self.cats, self.save)
 
     """
     Upgrade Column

@@ -2,7 +2,7 @@ import random
 import tkinter as tk
 from tkinter import ttk
 from Cat_counter import CatCounter
-
+from json_mgmt import JsonMGMT
 
 class TicTacToe:
     """This Tic Tac Toe game is directly inspired from the following GitHub project: https://github.com/glsprasanthi/tkinter-mini-games/blob/main/tic_tac_toe.py"""
@@ -27,8 +27,9 @@ class TicTacToe:
     Tic Tac Toe popup against the computer
     """
 
-    def __init__(self, window: tk.Tk, cats: CatCounter) -> None:
+    def __init__(self, window: tk.Tk, cats: CatCounter, save: JsonMGMT) -> None:
         self.cats = cats
+        self.save = save
 
         self.popup = tk.Toplevel(window)
         self.popup.title(self.NAME)
@@ -37,6 +38,11 @@ class TicTacToe:
 
         self.content = None
         self.ai_job = None
+
+        self.win_amount = max(0, save.data["minigames"]["tictactoe"]["win"])
+        self.tie_amount = max(0, save.data["minigames"]["tictactoe"]["tie"])
+        self.lose_amount = max(0, save.data["minigames"]["tictactoe"]["lose"])
+
         self.start_game()
 
     def start_game(self) -> None:
@@ -131,16 +137,38 @@ class TicTacToe:
 
     def check_game_over(self) -> bool:
         winner = self.get_winner()
+
         if winner is None:
             return False
 
         if winner == self.PLAYER:
+            self.win_amount += 1
             self.show_result("You win !", self.WIN_REWARD_SECONDS)
+            self.save.update(self.save_result_info("w", self.win_amount))
         elif winner == self.COMPUTER:
-            self.show_result("You lose...", 0)
+            self.lose_amount += 1
+            self.show_result("You lose ...", self.WIN_REWARD_SECONDS)
+            self.save.update(self.save_result_info("l", self.lose_amount))
         else:
-            self.show_result("It's a tie !", self.TIE_REWARD_SECONDS)
+            self.tie_amount += 1
+            self.show_result("It's a tie.", self.WIN_REWARD_SECONDS)
+            self.save.update(self.save_result_info("t", self.tie_amount))
         return True
+
+    def save_result_info(self, result: str, value: int) -> dict:
+        if result == "w":
+            return {
+                "minigames.tictactoe.win": value
+            }
+        if result == "t":
+            return {
+                "minigames.tictactoe.tie": value
+            }
+        if result == "l":
+            return {
+                "minigames.tictactoe.lose": value
+            }
+        return None
 
     """
     Result screen
