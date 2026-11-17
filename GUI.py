@@ -24,7 +24,7 @@ class GUI:
         """Initialize the GUI """
         self.save = save
         self.cats = CatCounter(save.data)
-        # The entities variable is a dict with every entities existing
+        # The entities variable is a dict with every entity existing
         self.entities = Entities(self.cats)
         self.minigames = Minigames()
 
@@ -192,58 +192,3 @@ class GUI:
             button = ttk.Button(frame, text="buy",
                                 command=lambda entity_name=entity_name: self.on_button_upgrade_column(entity_name))
             button.grid(row=1, column=1, sticky="e", padx=5, pady=5)
-
-# OLD - keep for now as temporary if needed
-# TO BE CLEAN LATER
-# def launch():
-#
-#     # Initialisation of important classes
-#     cats = CatCounter()
-#     entities = Entities(cats)
-#
-#     colors = ['#3f2e4f', '#77d584', '#0eb0de', '#ef38a1', '#d8c8a2']
-#     # Root Window
-#     root = tk.Tk()
-#     root.title("Purrfect Idle")
-#     root.geometry("1080x720")
-#
-#     # Three columns: sides = 1 part each, center = 3 parts
-#     root.columnconfigure(0, weight=1, uniform="cols")
-#     root.columnconfigure(1, weight=3, uniform="cols")
-#     root.columnconfigure(2, weight=1, uniform="cols")
-#     root.rowconfigure(0, weight=1)
-#
-#     # Left column: clicker
-#     clicker = tk.Frame(root, bg="#F6C6D0")  # pink
-#     clicker.grid(row=0, column=0, sticky="nsew")
-#
-#     # Center column: tabs
-#     nav = ttk.Notebook(root)
-#     nav.grid(row=0, column=1, sticky="nsew")
-#
-#     frame1 = tk.Frame(nav, bg="#FFF3C4")  # light yellow
-#     frame2 = tk.Frame(nav, bg="#27F5A3")
-#     nav.add(frame1, text="Game")
-#     nav.add(frame2, text="Statistics")
-#
-#     # Right column: upgrades
-#     upgrades = tk.Frame(root, bg="#C4E3F6")  # light blue
-#     upgrades.grid(row=0, column=2, sticky="nsew")
-#
-#     # Label inside column
-#     nb_of_cats = tk.Label(clicker, text=str(cats.get_cats()[0]) + "*10**" + str(cats.get_cats()[1]))
-#     nb_of_cats.place(x=170, y=170)
-#
-#     def updates():
-#         cats.update_cats(100)
-#         nb_of_cats.config(text=str(cats.get_cats()[0]) + "*10**" + str(cats.get_cats()[1]))
-#         #cats.update_cats_per_second([1,0])
-#         #color = colors[randint(0, 4)]
-#         #clicker.config(bg=color)
-#         clicker.after(100, updates)
-#         print(clicker.winfo_width(), clicker.winfo_height())
-#
-#
-#     updates()
-#
-#     root.mainloop()
