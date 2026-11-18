@@ -21,7 +21,7 @@ class JsonMGMT:
         "upgrades": [],
         "entities": {},
         "minigames": {
-            "tictactoe":{
+            "tictactoe": {
                 "win": 0,
                 "tie": 0,
                 "lose": 0

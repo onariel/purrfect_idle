@@ -5,6 +5,7 @@ from entities.Entities import Entities
 from json_mgmt import JsonMGMT
 from minigames.minigames import Minigames
 from graph import Graph
+from Statistics import Statistics
 
 
 class GUI:
@@ -153,6 +154,8 @@ class GUI:
 
         separator = ttk.Separator(frame, orient="horizontal")
         separator.grid(row=2, column=0, columnspan=2, pady=10, sticky="ew")
+
+        Statistics(frame, self.save, self.cats, 2)
 
     def export_stats(self) -> None:
         print("Stats exported")

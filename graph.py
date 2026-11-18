@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk
 from json_mgmt import JsonMGMT
 from minigames.minigames import Minigames
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class Graph:
@@ -58,16 +60,33 @@ class Graph:
         game_name = tk.Label(cell, text=minigame.NAME)
         game_name.grid(row=0, column=0, columnspan=2, padx=10)
 
-        win_label = tk.Label(cell, text="Wins: ")
-        win_label.grid(row=1, column=0, padx=10, sticky="w")
-        tie_label = tk.Label(cell, text="Ties: ")
-        tie_label.grid(row=2, column=0, padx=10, sticky="w")
-        lose_label = tk.Label(cell, text="Loses: ")
-        lose_label.grid(row=3, column=0, padx=10, sticky="w")
+        values = [stats["win"], stats["tie"], stats["lose"]]
 
-        win_score = tk.Label(cell, text=stats["win"])
-        win_score.grid(row=1, column=1, padx=10)
-        tie_score = tk.Label(cell, text=stats["tie"])
-        tie_score.grid(row=2, column=1, padx=10)
-        lose_score = tk.Label(cell, text=stats["lose"])
-        lose_score.grid(row=3, column=1, padx=10)
+        if sum(values) == 0:
+            no_data = tk.Label(cell, text="No games played yet")
+            no_data.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+            return
+
+        cell.columnconfigure(0, weight=1)
+
+        figure = Figure(figsize=(2, 2), layout="constrained")
+        axes = figure.add_subplot()
+        pie = axes.pie(values, colors=["#4caf50", "#9e9e9e", "#e53935"])
+
+        labels = [f"{value}" if value else "" for value in values]
+        axes.pie_label(pie, labels, textprops=dict(color="w", size=10, weight="bold"))
+
+        figure.legend(pie.wedges, ["Wins", "Ties", "Loses"],
+                      loc="outside lower center",
+                      ncol=3,
+                      fontsize=8,
+                      frameon=False)
+
+        canvas = FigureCanvasTkAgg(figure, master=cell)
+        canvas.draw()
+        widget = canvas.get_tk_widget()
+        widget.grid(row=1, column=0, columnspan=2, sticky="ew")
+
+        # Keep the chart square: its height follows the width of the column
+        widget.bind("<Configure>", lambda event: widget.configure(height=event.width)
+        if event.height != event.width else None, add="+")
