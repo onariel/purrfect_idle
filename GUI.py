@@ -173,7 +173,7 @@ class GUI:
     """
 
     def on_button_upgrade_column(self, entity_name: str) -> None:
-        print("you bought : ", entity_name)
+        self.entities.buy_entity(entity_name)
 
     def init_upgrade_column(self) -> None:
         # One full-width row per entity, stacked from the top of the column

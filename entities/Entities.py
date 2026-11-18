@@ -16,3 +16,11 @@ class Entities:
 
     def get_entities(self) -> dict:
         return self.entities_list
+
+    def get_entity_price(self, entity_name: str) -> tuple:
+        pass
+
+    def buy_entity(self, entity_name: str) -> None:
+        #self.cats.get_entities_bought()
+        self.cats.add_entity(self.entities_list[entity_name])
+        self.cats.update_cats_per_second()

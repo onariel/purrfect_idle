@@ -19,14 +19,15 @@ class JsonMGMT:
             "power_of_ten": 0
         },
         "upgrades": [],
-        "entities": [],
+        "entities": {},
         "minigames": {
             "tictactoe":{
                 "win": 0,
                 "tie": 0,
                 "lose": 0
             }
-        }
+        },
+        "global_modifier": 0
     }
 
     def __init__(self):
