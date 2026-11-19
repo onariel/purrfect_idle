@@ -67,6 +67,7 @@ class CatCounter:
         return self.entities_bought[entity_name]
 
     def get_cats(self) -> str:
+        print(self.cats, self.power_of_ten)
         return Convert.convert(self.cats, self.power_of_ten)
 
     def get_cats_per_second(self) -> str:
@@ -106,7 +107,7 @@ class CatCounter:
         if self.cats > 1000:
             self.cats = round(self.cats / 1000, self.rounded_to)
             self.power_of_ten += 3
-        if self.cats < 1 and self.cats != 0:
+        if self.cats < 1 and self.power_of_ten != 0:
             self.cats = round(self.cats * 1000, self.rounded_to)
             self.power_of_ten -= 3
 
