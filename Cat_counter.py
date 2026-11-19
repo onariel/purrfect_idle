@@ -67,7 +67,6 @@ class CatCounter:
         return self.entities_bought[entity_name]
 
     def get_cats(self) -> str:
-        print(self.cats, self.power_of_ten)
         return Convert.convert(self.cats, self.power_of_ten)
 
     def get_cats_per_second(self) -> str:
@@ -118,18 +117,33 @@ class CatCounter:
 
         return Convert.convert(self.cats_per_seconds * (time/1000),new_cats_power_of_ten)
 
+    def calculate_entity_cps(self, entity_name: str) -> tuple:
+        """Cats per second produced by every bought unit of an entity, before the global modifier"""
+        entity = self.entities_bought[entity_name]
+        entity_calculated_cps = entity["amount_bought"] * entity["flat_cps"] + (
+                    entity["amount_bought"] * entity["flat_cps"] * entity["modifier_cps"])
+        entity_calculated_cps_power_of_ten = entity["flat_cps_power_of_ten"]
+
+        while entity_calculated_cps > 1000:
+            entity_calculated_cps = round(entity_calculated_cps / 1000, self.rounded_to)
+            entity_calculated_cps_power_of_ten += 3
+
+        return entity_calculated_cps, entity_calculated_cps_power_of_ten
+
+    def get_entity_cps(self, entity_name: str) -> str:
+        """Real cats per second produced by an entity, global modifier included"""
+        entity_cps, entity_cps_power_of_ten = self.calculate_entity_cps(entity_name)
+        entity_cps += entity_cps * self.global_modifier
+        while entity_cps > 1000:
+            entity_cps = round(entity_cps / 1000, self.rounded_to)
+            entity_cps_power_of_ten += 3
+        return Convert.convert(entity_cps, entity_cps_power_of_ten)
+
     def update_cats_per_second(self) -> None:
         new_cats_per_seconds = self.cats_per_seconds
         new_cats_per_seconds_power_of_ten = self.cats_per_seconds_power_of_ten
         for entity_key in self.entities_bought:
-            entity = self.entities_bought[entity_key]
-            entity_calculated_cps = entity["amount_bought"] * entity["flat_cps"] + (
-                        entity["amount_bought"] * entity["flat_cps"] * entity["modifier_cps"])
-            entity_calculated_cps_power_of_ten = entity["flat_cps_power_of_ten"]
-
-            while entity_calculated_cps > 1000:
-                entity_calculated_cps = round(entity_calculated_cps / 1000, self.rounded_to)
-                entity_calculated_cps_power_of_ten += 3
+            entity_calculated_cps, entity_calculated_cps_power_of_ten = self.calculate_entity_cps(entity_key)
 
             if new_cats_per_seconds_power_of_ten - entity_calculated_cps_power_of_ten < self.rounded_to:
                 new_cats_per_seconds += entity_calculated_cps * 10 ** (

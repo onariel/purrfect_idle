@@ -2,6 +2,7 @@ import tkinter as tk
 from Cat_counter import CatCounter
 from json_mgmt import JsonMGMT
 from minigames.minigames import Minigames
+from entities.Entities import Entities
 
 
 class Statistics:
@@ -45,6 +46,7 @@ class Statistics:
         self.cats_per_clicks_value.grid(row=self.row + 4, column=1, sticky="e")
 
     def entities_stats(self) -> None:
+        entities = Entities.get_entities()
         entities_section_label = tk.Label(self.parent, text="Entities Statistics")
         entities_section_label.grid(row=self.row + 5, column=0, columnspan=2, sticky="ew")
 
@@ -63,7 +65,7 @@ class Statistics:
         entity_cps_label.grid(row=0, column=2, sticky="e")
 
         for row, entity_name in enumerate(self.save.data["entities"]):
-            label_entity_name = tk.Label(frame, text=entity_name)
+            label_entity_name = tk.Label(frame, text=entities[entity_name]["name"])
             label_entity_name.grid(row=row + 1, column=0, sticky="w")
 
             label_entity_quantity = tk.Label(frame)
@@ -125,7 +127,7 @@ class Statistics:
         for entity_name, (label_quantity, label_cps) in self.entities_labels.items():
             entity = self.save.data["entities"][entity_name]
             label_quantity.config(text=entity["amount_bought"])
-            label_cps.config(text=f"{entity['flat_cps']}*10**{entity['flat_cps_power_of_ten']}")
+            label_cps.config(text=f"{self.cats.get_entity_cps(entity_name)}/s")
 
         for key, (win_score, tie_score, lose_score) in self.minigames_labels.items():
             stats = self.save.data["minigames"][key]

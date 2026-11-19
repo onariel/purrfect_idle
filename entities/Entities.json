@@ -26,26 +26,5 @@
     "cps_power_of_ten": 0,
     "price": 100,
     "price_power_of_ten" : 3
-  },
-  "chamourail":{
-    "name": "Chamourail",
-    "cps": 5,
-    "cps_power_of_ten": 0,
-    "price": 100,
-    "price_power_of_ten" : 0
-  },
-  "cat-toy":{
-    "name": "Cat Toy",
-    "cps": 50,
-    "cps_power_of_ten": 0,
-    "price": 100,
-    "price_power_of_ten" : 0
-  },
-  "Upgrade-with-a-long-name":{
-    "name": "Upgrade with a long name",
-    "cps": 50,
-    "cps_power_of_ten": 0,
-    "price": 100,
-    "price_power_of_ten" : 0
   }
 }

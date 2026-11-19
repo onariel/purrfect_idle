@@ -7,6 +7,7 @@ from minigames.minigames import Minigames
 from graph import Graph
 from Statistics import Statistics
 from convert.convert import Convert
+from Report import Report
 
 
 class GUI:
@@ -30,6 +31,7 @@ class GUI:
         self.cats = CatCounter(save.data)
         # The entities variable is a dict with every entity existing*
         self.minigames = Minigames()
+        self.report = Report(self.cats, self.save)
 
         # Initializing the window
         self.window = tk.Tk()
@@ -159,7 +161,7 @@ class GUI:
         Statistics(frame, self.save, self.cats, 2)
 
     def export_stats(self) -> None:
-        print("Stats exported")
+        self.report.export()
 
     def open_minigame(self, minigame) -> None:
         minigame(self.window, self.cats, self.save)
@@ -191,7 +193,8 @@ class GUI:
             frame.columnconfigure(0, weight=1)
             self.entities_frame[entity_name]["frame"] = frame
 
-            label_entity_name = tk.Label(frame, text=entities[entity_name]["name"], anchor="w")
+            name_entity = entities[entity_name]["name"]
+            label_entity_name = tk.Label(frame, text=name_entity[:15] + "..." if len(name_entity) > 15 else name_entity, anchor="w")
             label_entity_name.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
             self.entities_frame[entity_name]["name"] = label_entity_name
 

@@ -7,6 +7,24 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
+def draw_minigame_pie(axes, values: list) -> None:
+    """Draw the win/tie/lose pie and its legend on the given axes (shared with Report)"""
+    pie = axes.pie(values, colors=["#4caf50", "#9e9e9e", "#e53935"])
+
+    labels = [f"{value}" if value else "" for value in values]
+    axes.pie_label(pie, labels, textprops=dict(color="w", size=10, weight="bold"))
+
+    # Legend attached to the axes (not the figure) so each pie keeps its own legend
+    axes.legend(pie.wedges, ["Wins", "Ties", "Loses"],
+                loc="upper center",
+                bbox_to_anchor=(0.5, 0),
+                ncol=3,
+                fontsize=8,
+                handlelength=1,
+                columnspacing=0.8,
+                frameon=False)
+
+
 class Graph:
 
     def __init__(self, window: tk.Tk, cats: CatCounter, save: JsonMGMT) -> None:
@@ -71,16 +89,7 @@ class Graph:
 
         figure = Figure(figsize=(2, 2), layout="constrained")
         axes = figure.add_subplot()
-        pie = axes.pie(values, colors=["#4caf50", "#9e9e9e", "#e53935"])
-
-        labels = [f"{value}" if value else "" for value in values]
-        axes.pie_label(pie, labels, textprops=dict(color="w", size=10, weight="bold"))
-
-        figure.legend(pie.wedges, ["Wins", "Ties", "Loses"],
-                      loc="outside lower center",
-                      ncol=3,
-                      fontsize=8,
-                      frameon=False)
+        draw_minigame_pie(axes, values)
 
         canvas = FigureCanvasTkAgg(figure, master=cell)
         canvas.draw()
