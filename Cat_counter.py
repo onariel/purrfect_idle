@@ -1,3 +1,5 @@
+import json
+
 class CatCounter:
     rounded_to = 12
 
@@ -9,6 +11,8 @@ class CatCounter:
 
     cats_per_click: float
     cats_per_click_power_of_ten: int
+
+    convert : dict
 
     """
     The entities bought will be a dictionary that links an entity type to, amount of entities bought, price, flat cps, and modifier in %. Example:
@@ -39,11 +43,19 @@ class CatCounter:
         self.entities_bought = save["entities"]
         self.global_modifier = save["global_modifier"]
 
-    def get_cats(self) -> tuple:
-        return round(self.cats, 3), self.power_of_ten
+        self.convert = json.load(open('data/convert.json'))
 
-    def get_cats_per_second(self) -> tuple:
-        return round(self.cats_per_seconds, 3), self.cats_per_seconds_power_of_ten
+    def get_cats(self) -> str:
+        if str(self.power_of_ten) in self.convert:
+            return str(round(self.cats, 3)) + " " + self.convert[str(self.power_of_ten)]
+        else:
+            return str(round(self.cats, 3)) + " * 10**" + str(self.power_of_ten)
+
+    def get_cats_per_second(self) -> str:
+        if str(self.cats_per_seconds_power_of_ten) in self.convert:
+            return str(round(self.cats_per_seconds, 3)) + " " + self.convert[str(self.cats_per_seconds_power_of_ten)]
+        else:
+            return str(round(self.cats_per_seconds, 3)) + " * 10**" + str(self.cats_per_seconds_power_of_ten)
 
     def get_entities_bought(self) -> dict:
         return self.entities_bought
@@ -59,7 +71,7 @@ class CatCounter:
                 "modifier_cps": 0
             }
 
-    def update_cats(self, time: int) -> None:
+    def update_cats(self, time: int) -> str:
         # This formula calculates the number of cats made in a certain time. First you calculate the number of cats that a second of
         # cat per second will give if you remove the power of tens. Then you have to transform the time given in seconds and multiply the two
         self.cats += round(
@@ -72,6 +84,13 @@ class CatCounter:
         if self.cats < 1 and self.cats != 0:
             self.cats = round(self.cats * 1000, self.rounded_to)
             self.power_of_ten -= 3
+
+        new_cats_power_of_ten = self.cats_per_seconds_power_of_ten
+        while time >= 1000:
+            new_cats_power_of_ten += 3
+            time /= 1000
+
+        return str(round(self.cats_per_seconds * (time/1000), 3)) + " " + self.convert[str(new_cats_power_of_ten)]
 
     def update_cats_per_second(self) -> None:
         new_cats_per_seconds = self.cats_per_seconds
@@ -103,8 +122,11 @@ class CatCounter:
                     self.cats_per_seconds_power_of_ten - new_cats_per_seconds_power_of_ten))
         self.cats_per_seconds_power_of_ten = new_cats_per_seconds_power_of_ten
 
-    def get_cats_per_click(self) -> tuple:
-        return round(self.cats_per_click, 3), self.cats_per_click_power_of_ten
+    def get_cats_per_click(self) -> str:
+        if str(self.cats_per_click_power_of_ten) in self.convert:
+            return str(round(self.cats_per_click, 3)) + " " + self.convert[str(self.cats_per_click_power_of_ten)]
+        else:
+            return str(round(self.cats_per_click, 3)) + " * 10**" + str(self.cats_per_click_power_of_ten)
 
     def add_cats(self, nb_cats: tuple) -> None:
         self.cats += round(nb_cats[0] * (10 ** (nb_cats[1] - self.power_of_ten)), self.rounded_to)

@@ -183,24 +183,16 @@ class TicTacToe:
             exponent += 3
         return round(mantissa, 3), exponent
 
-    def reward(self, seconds: int) -> tuple:
+    def reward(self, seconds: int) -> str:
         """Gives the player `seconds` of cats per second (or the minimum click reward if higher)
-        and returns the amount as (mantissa, exponent)"""
+        and returns the amount as cats"""
         if seconds == 0:
-            return 0, 0
+            return "0"
 
-        cps_reward = self.scale(self.cats.get_cats_per_second(), seconds)
-        click_reward = self.scale(self.cats.get_cats_per_click(), seconds * self.CLICKS_PER_SECOND_REWARD)
-
-        if cps_reward[0] * 10 ** cps_reward[1] >= click_reward[0] * 10 ** click_reward[1]:
-            self.cats.update_cats(seconds * 1000)
-            return cps_reward
-
-        self.cats.add_cats(click_reward)
-        return click_reward
+        return self.cats.update_cats(seconds * 1000)
 
     def show_result(self, message: str, seconds: int) -> None:
-        mantissa, exponent = self.reward(seconds)
+        cats_gained = self.reward(seconds)
 
         self.content.destroy()
         self.content = tk.Frame(self.popup, padx=40, pady=40)
@@ -209,7 +201,7 @@ class TicTacToe:
         result_label = tk.Label(self.content, text=message, font=("TkDefaultFont", 20, "bold"))
         result_label.pack(pady=10)
 
-        reward_label = tk.Label(self.content, text=f"You earned {mantissa}*10**{exponent} cats")
+        reward_label = tk.Label(self.content, text=f"You earned {cats_gained} cats")
         reward_label.pack(pady=10)
 
         buttons_frame = tk.Frame(self.content)

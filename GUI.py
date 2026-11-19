@@ -96,8 +96,8 @@ class GUI:
 
     def update_clicker_column(self, label_cat_seconds: tk.Label) -> None:
         self.cats.update_cats(50)  # 50 ms
-        mantissa, exponent = self.cats.get_cats()
-        label_cat_seconds.config(text=f"{mantissa}*10**{exponent}")
+        nb_cats = self.cats.get_cats()
+        label_cat_seconds.config(text=nb_cats)
         label_cat_seconds.after(50, self.update_clicker_column, label_cat_seconds)
 
     def on_button_clicker_column(self):

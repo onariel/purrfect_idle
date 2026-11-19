@@ -113,14 +113,14 @@ class Statistics:
 
     def update_stats(self) -> None:
         """Refresh every displayed value, every 500 ms"""
-        mantissa, exponent = self.cats.get_cats()
-        self.total_cats_value.config(text=f"{mantissa}*10**{exponent}")
+        nb_cats = self.cats.get_cats()
+        self.total_cats_value.config(text=nb_cats)
 
-        mantissa, exponent = self.cats.get_cats_per_second()
-        self.cats_per_seconds_value.config(text=f"{mantissa}*10**{exponent}")
+        nb_cats_per_seconds = self.cats.get_cats_per_second()
+        self.cats_per_seconds_value.config(text=nb_cats_per_seconds)
 
-        mantissa, exponent = self.cats.get_cats_per_click()
-        self.cats_per_clicks_value.config(text=f"{mantissa}*10**{exponent}")
+        nb_cats_per_click = self.cats.get_cats_per_click()
+        self.cats_per_clicks_value.config(text=nb_cats_per_click)
 
         for entity_name, (label_quantity, label_cps) in self.entities_labels.items():
             entity = self.save.data["entities"][entity_name]
