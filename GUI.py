@@ -6,17 +6,19 @@ from json_mgmt import JsonMGMT
 from minigames.minigames import Minigames
 from graph import Graph
 from Statistics import Statistics
+from convert.convert import Convert
 
 
 class GUI:
     cats: CatCounter
-    entities: Entities
     window_width: int
     window_height: int
     window: tk.Tk
     clicker_column: tk.Frame
     information_column: ttk.Notebook
     upgrade_column: tk.Frame
+
+    entities_frame: dict
 
     """
     Main GUI
@@ -26,8 +28,7 @@ class GUI:
         """Initialize the GUI """
         self.save = save
         self.cats = CatCounter(save.data)
-        # The entities variable is a dict with every entity existing
-        self.entities = Entities(self.cats)
+        # The entities variable is a dict with every entity existing*
         self.minigames = Minigames()
 
         # Initializing the window
@@ -176,23 +177,54 @@ class GUI:
     """
 
     def on_button_upgrade_column(self, entity_name: str) -> None:
-        self.entities.buy_entity(entity_name)
+        self.cats.add_entity(entity_name)
 
     def init_upgrade_column(self) -> None:
         # One full-width row per entity, stacked from the top of the column
         self.upgrade_column.columnconfigure(0, weight=1)
-
-        for row, entity_name in enumerate(self.entities.get_entities()):
+        entities = Entities.get_entities()
+        self.entities_frame = {}
+        for row, entity_name in enumerate(entities):
+            self.entities_frame[entity_name] = {}
             frame = tk.Frame(self.upgrade_column, relief="groove", bd=2)
             frame.grid(row=row, column=0, sticky="ew")
             frame.columnconfigure(0, weight=1)
+            self.entities_frame[entity_name]["frame"] = frame
 
-            label_entity_name = tk.Label(frame, text=entity_name, anchor="w")
-            label_entity_name.grid(row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
+            label_entity_name = tk.Label(frame, text=entities[entity_name]["name"], anchor="w")
+            label_entity_name.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+            self.entities_frame[entity_name]["name"] = label_entity_name
 
             label_entity_quantity = tk.Label(frame, text="quantity", anchor="w")
             label_entity_quantity.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+            self.entities_frame[entity_name]["quantity"] = label_entity_quantity
 
             button = ttk.Button(frame, text="buy",
                                 command=lambda entity_name=entity_name: self.on_button_upgrade_column(entity_name))
             button.grid(row=1, column=1, sticky="e", padx=5, pady=5)
+            self.entities_frame[entity_name]["button"] = button
+
+            label_entity_price = tk.Label(frame, text=str(entities[entity_name]["price"]) + " cats", anchor="w")
+            label_entity_price.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+            self.entities_frame[entity_name]["price"] = label_entity_price
+        self.update_upgrade_column()
+
+    def update_upgrade_column(self) -> None:
+        entities = Entities.get_entities()
+        for entity_key in entities:
+            entity = self.cats.get_entity_info(entity_key)
+            quantity_label : tk.Label = self.entities_frame[entity_key]["quantity"]
+            quantity_label.config(text=entity["amount_bought"])
+
+            price_label : tk.Label = self.entities_frame[entity_key]["price"]
+            price_label.config(text=str(Convert.convert(entity["price"], entity["price_power_of_ten"]) + " cats"))
+
+            is_boughtable = self.cats.is_boughtable(entity_key)
+            bought_label : tk.Button = self.entities_frame[entity_key]["button"]
+            if is_boughtable:
+                bought_label.config(state="normal")
+            else:
+                bought_label.config(state="disabled")
+
+        quantity_label.after(100, self.update_upgrade_column)
+
