@@ -15,4 +15,4 @@ saved on a json file. Some graphs will be generated using Matplotlib.
 
 Data manipulation & File manipulation: Json save file edit and calling  
 Graphical Interface: TKinter (graphs with Matplotlib)  
-Report Generation: Live report (statistic page) and review report (feedback on the run at the end)
+Report Generation: Live report (statistic page), graphical report and report exportation into a .pdf file.
