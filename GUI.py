@@ -88,20 +88,26 @@ class GUI:
     def init_clicker_column(self) -> None:
         self.clicker_column.columnconfigure(0, weight=1)
 
-        label_cat_seconds = tk.Label(self.clicker_column, text="test")
-        label_cat_seconds.grid(row=0, column=0, pady=10)
+        label_cat = tk.Label(self.clicker_column)
+        label_cat.grid(row=0, column=0, pady=10)
+
+        label_cat_seconds = tk.Label(self.clicker_column)
+        label_cat_seconds.grid(row=1, column=0, pady=10)
 
         button_clicker = ttk.Button(self.clicker_column, text='Click Me !!',
                                     command=self.on_button_clicker_column)
-        button_clicker.grid(row=1, column=0, pady=10)
+        button_clicker.grid(row=2, column=0, pady=10)
 
-        self.update_clicker_column(label_cat_seconds)
+        self.update_clicker_column(label_cat, label_cat_seconds)
 
-    def update_clicker_column(self, label_cat_seconds: tk.Label) -> None:
+    def update_clicker_column(self, label_cat: tk.Label, label_cat_seconds : tk.Label) -> None:
         self.cats.update_cats(50)  # 50 ms
         nb_cats = self.cats.get_cats()
-        label_cat_seconds.config(text=nb_cats)
-        label_cat_seconds.after(50, self.update_clicker_column, label_cat_seconds)
+        nb_cats_per_seconds = self.cats.get_cats_per_second()
+        label_cat.config(text=str(nb_cats) + " cats")
+        label_cat_seconds.config(text=str(nb_cats_per_seconds) + " cats per seconds")
+        label_cat.after(50, self.update_clicker_column, label_cat, label_cat_seconds)
+
 
     def on_button_clicker_column(self):
         self.cats.click()
