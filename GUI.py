@@ -120,30 +120,8 @@ class GUI:
         self.information_column.add(self.entities_bought, text="Game")
         self.information_column.add(self.statistics, text="Statistics")
 
-        self.init_game_section()
         self.init_stats_section()
-
-    def init_game_section(self) -> None:
-        self.entities_bought.columnconfigure(0, weight=1)
-
-        frame = tk.Frame(self.entities_bought)
-        frame.grid(row=0, column=0, sticky="nsew", padx=10)
-        frame.columnconfigure(0, weight=1)
-
-        title_label = tk.Label(frame, text="Minigames to play in order to gain more cats !")
-        title_label.grid(row=0, column=0, pady=10)
-
-        for row, game in enumerate(self.minigames.get_minigames()):
-            card = tk.Frame(frame, relief="groove", bd=2)
-            card.grid(row=row + 1, column=0, sticky="ew", pady=5)
-            card.columnconfigure(0, weight=1)
-
-            name_label = tk.Label(card, text=game.NAME, anchor="w", font=("TkDefaultFont", 11, "bold"))
-            name_label.grid(row=0, column=0, sticky="ew", padx=5, pady=(5, 0))
-
-            button = ttk.Button(card, text="Play",
-                                command=lambda minigame=game: self.open_minigame(minigame))
-            button.grid(row=0, column=1, rowspan=2, sticky="e", padx=5, pady=5)
+        self.minigames.init_game_section(self.entities_bought, self.window, self.cats, self.save)
 
     def init_stats_section(self) -> None:
         self.statistics.columnconfigure(0, weight=1)
@@ -168,9 +146,6 @@ class GUI:
 
     def export_stats(self) -> None:
         self.report.export()
-
-    def open_minigame(self, minigame) -> None:
-        minigame(self.window, self.cats, self.save)
 
     def graph_cats(self) -> None:
         # Use to display some graphs via Matplotlib (can be multiple graphs via notebook)

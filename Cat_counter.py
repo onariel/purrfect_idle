@@ -92,7 +92,7 @@ class CatCounter:
         if self.power_of_ten > entity["price_power_of_ten"]:
             return True
         elif self.power_of_ten == entity["price_power_of_ten"]:
-            if self.cats > entity["price"]:
+            if self.cats >= entity["price"]:
                 return True
         return False
 
