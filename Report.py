@@ -2,7 +2,7 @@ from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.figure import Figure
 from Cat_counter import CatCounter
-from json_mgmt import JsonMGMT
+from Json_MGMT import JsonMGMT
 from minigames.minigames import Minigames
 from graph import draw_minigame_pie
 import tkinter as tk

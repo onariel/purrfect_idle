@@ -2,7 +2,7 @@ from minigames.tic_tac_toe import TicTacToe
 import tkinter as tk
 from tkinter import ttk
 from Cat_counter import CatCounter
-from json_mgmt import JsonMGMT
+from Json_MGMT import JsonMGMT
 
 
 class Minigames:
@@ -21,24 +21,25 @@ class Minigames:
 
         parent.columnconfigure(0, weight=1)
 
-        self.frame = tk.Frame(parent)
+        self.frame = ttk.Frame(parent)
         self.frame.grid(row=0, column=0, sticky="nsew", padx=10)
         self.frame.columnconfigure(0, weight=1)
 
-        title_label = tk.Label(self.frame, text="Minigames to play in order to gain more cats !")
+        title_label = ttk.Label(self.frame, text="Minigames to play in order to gain more cats !",
+                                style="Section.TLabel")
         title_label.grid(row=0, column=0, pady=10)
 
         self.update_window()
 
     def add_card(self, row: int, game) -> None:
-        card = tk.Frame(self.frame, relief="groove", bd=2)
+        card = ttk.Frame(self.frame, style="Card.TFrame", padding=5)
         card.grid(row=row + 1, column=0, sticky="ew", pady=5)
         card.columnconfigure(0, weight=1)
 
-        name_label = tk.Label(card, text=game.NAME, anchor="w", font=("TkDefaultFont", 11, "bold"))
+        name_label = ttk.Label(card, text=game.NAME, anchor="w", style="CardTitle.TLabel")
         name_label.grid(row=0, column=0, sticky="ew", padx=5, pady=(5, 0))
 
-        button = ttk.Button(card, text="Play",
+        button = ttk.Button(card, text="Play", style="Accent.TButton",
                             command=lambda minigame=game: minigame(self.window, self.cats, self.save))
         button.grid(row=0, column=1, rowspan=2, sticky="e", padx=5, pady=5)
 
@@ -56,7 +57,8 @@ class Minigames:
             self.temp_label.destroy()
             self.temp_label = None
         elif not minigame_bought and self.temp_label is None:
-            self.temp_label = tk.Label(self.frame, text="Buy at least one entity to unlock its minigame.")
+            self.temp_label = ttk.Label(self.frame, text="Buy at least one entity to unlock its minigame.",
+                                        style="Muted.TLabel")
             self.temp_label.grid(row=1, column=0, sticky="ew")
 
         self.frame.after(100, self.update_window)

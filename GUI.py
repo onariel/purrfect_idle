@@ -1,13 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
+from PIL import Image, ImageTk
 from Cat_counter import CatCounter
 from entities.Entities import Entities
-from json_mgmt import JsonMGMT
+from Json_MGMT import JsonMGMT
 from minigames.minigames import Minigames
 from graph import Graph
 from Statistics import Statistics
 from convert.convert import Convert
 from Report import Report
+from style import setup_style
 
 
 class GUI:
@@ -15,11 +17,17 @@ class GUI:
     window_width: int
     window_height: int
     window: tk.Tk
-    clicker_column: tk.Frame
+    clicker_column: ttk.Frame
     information_column: ttk.Notebook
-    upgrade_column: tk.Frame
+    upgrade_column: ttk.Frame
 
     entities_frame: dict
+
+    # 4x the 68px source image, so the pixel art stays evenly scaled at full size
+    CLICKER_IMAGE_MAX_WIDTH: int = 272
+    # Click pulse: the cat shrinks through these scales then goes back to full size
+    CLICKER_PULSE_SCALES: tuple = (0.92, 0.86, 0.9, 0.96)
+    CLICKER_PULSE_FRAME_MS: int = 30
 
     """
     Main GUI
@@ -35,6 +43,7 @@ class GUI:
 
         # Initializing the window
         self.window = tk.Tk()
+        setup_style(self.window)
         self.window_width = 720
         self.window_height = 1080
         self.window.title("Purrfect Idle")
@@ -46,18 +55,25 @@ class GUI:
         self.window.columnconfigure(2, weight=1, uniform="cols")
         self.window.rowconfigure(0, weight=1)
 
-        self.clicker_column = tk.Frame(self.window)
-        self.clicker_column.grid(row=0, column=0, sticky="nsew")
+        self.clicker_column = ttk.Frame(self.window, style="Card.TFrame", padding=10)
+        self.clicker_column.grid(row=0, column=0, sticky="nsew", padx=(10, 5), pady=10)
 
         self.information_column = ttk.Notebook(self.window)
-        self.information_column.grid(row=0, column=1, sticky="nsew")
+        self.information_column.grid(row=0, column=1, sticky="nsew", padx=5, pady=10)
 
-        self.entities_bought = tk.Frame(self.information_column)
-        self.statistics = tk.Frame(self.information_column)
+        self.entities_bought = ttk.Frame(self.information_column)
+        self.statistics = ttk.Frame(self.information_column)
 
         # Right column: upgrades
-        self.upgrade_column = tk.Frame(self.window)
-        self.upgrade_column.grid(row=0, column=2, sticky="nsew")
+        self.upgrade_column = ttk.Frame(self.window)
+        self.upgrade_column.grid(row=0, column=2, sticky="nsew", padx=(5, 10), pady=10)
+
+        # Resized to the column width in resize_clicker_image()
+        self.cat_image_source = Image.open("images/clicker_image.png")
+        self.cat_image = ImageTk.PhotoImage(self.cat_image_source)
+        self.cat_image_width = 0
+        self.cat_pulse_frames = []
+        self.cat_pulse_job = None
 
         self.init_upgrade_column()
         self.init_main_column()
@@ -86,21 +102,52 @@ class GUI:
     """
 
     def init_clicker_column(self) -> None:
+        # Stats pinned at the top, the button centered in the remaining space
         self.clicker_column.columnconfigure(0, weight=1)
+        self.clicker_column.rowconfigure(3, weight=1)
 
-        label_cat = tk.Label(self.clicker_column)
-        label_cat.grid(row=0, column=0, pady=10)
+        label_cat = ttk.Label(self.clicker_column, style="Number.Card.TLabel")
+        label_cat.grid(row=0, column=0, pady=(10, 0))
 
-        label_cat_seconds = tk.Label(self.clicker_column)
-        label_cat_seconds.grid(row=1, column=0, pady=10)
+        label_cat_seconds = ttk.Label(self.clicker_column, style="Muted.Card.TLabel")
+        label_cat_seconds.grid(row=1, column=0, pady=(0, 10))
 
-        button_clicker = ttk.Button(self.clicker_column, text='Click Me !!',
-                                    command=self.on_button_clicker_column)
-        button_clicker.grid(row=2, column=0, pady=10)
+        separator = ttk.Separator(self.clicker_column, orient="horizontal")
+        separator.grid(row=2, column=0, sticky="ew")
+
+        self.button_clicker = ttk.Button(self.clicker_column, image=self.cat_image, style="Image.TButton",
+                                         command=self.on_button_clicker_column)
+        self.button_clicker.grid(row=3, column=0, sticky="ew", padx=5)
+        self.clicker_column.bind("<Configure>", lambda event: self.resize_clicker_image(event.width))
 
         self.update_clicker_column(label_cat, label_cat_seconds)
 
-    def update_clicker_column(self, label_cat: tk.Label, label_cat_seconds : tk.Label) -> None:
+    def render_cat_image(self, width: int) -> ImageTk.PhotoImage:
+        source_width, source_height = self.cat_image_source.size
+        height = round(source_height * width / source_width)
+        # NEAREST keeps the pixel art sharp
+        return ImageTk.PhotoImage(self.cat_image_source.resize((width, height), Image.NEAREST))
+
+    def resize_clicker_image(self, column_width: int) -> None:
+        # Column padding (10) + button padx (5) + Image.TButton padding (8) on both sides
+        width = min(column_width - 2 * (10 + 5 + 8), self.CLICKER_IMAGE_MAX_WIDTH)
+        if width <= 0 or width == self.cat_image_width:
+            return
+        self.cat_image_width = width
+        self.cat_image = self.render_cat_image(width)
+        # Pulse frames are rendered once per size, not on every click
+        self.cat_pulse_frames = [self.render_cat_image(round(width * scale)) for scale in self.CLICKER_PULSE_SCALES]
+        self.button_clicker.config(image=self.cat_image)
+
+    def pulse_clicker_image(self, frame: int = 0) -> None:
+        if frame < len(self.cat_pulse_frames):
+            self.button_clicker.config(image=self.cat_pulse_frames[frame])
+            self.cat_pulse_job = self.window.after(self.CLICKER_PULSE_FRAME_MS, self.pulse_clicker_image, frame + 1)
+        else:
+            self.button_clicker.config(image=self.cat_image)
+            self.cat_pulse_job = None
+
+    def update_clicker_column(self, label_cat: ttk.Label, label_cat_seconds: ttk.Label) -> None:
         self.cats.update_cats(50)  # 50 ms
         nb_cats = self.cats.get_cats()
         nb_cats_per_seconds = self.cats.get_cats_per_second()
@@ -108,9 +155,12 @@ class GUI:
         label_cat_seconds.config(text=str(nb_cats_per_seconds) + " cats per seconds")
         label_cat.after(50, self.update_clicker_column, label_cat, label_cat_seconds)
 
-
     def on_button_clicker_column(self):
         self.cats.click()
+        # Restart the pulse when clicking again before the previous one is over
+        if self.cat_pulse_job is not None:
+            self.window.after_cancel(self.cat_pulse_job)
+        self.pulse_clicker_image()
 
     """
     Main Column
@@ -126,17 +176,17 @@ class GUI:
     def init_stats_section(self) -> None:
         self.statistics.columnconfigure(0, weight=1)
 
-        frame = tk.Frame(self.statistics)
+        frame = ttk.Frame(self.statistics)
         frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         frame.columnconfigure(0, weight=1)
 
-        title_label = tk.Label(frame, text="You can view here the statistics of your game.")
+        title_label = ttk.Label(frame, text="You can view here the statistics of your game.")
         title_label.grid(row=0, column=0, columnspan=2, pady=10)
 
-        graph_btn = tk.Button(frame, text="Open the Cat graph", command=lambda: self.graph_cats())
+        graph_btn = ttk.Button(frame, text="Open the Cat graph", command=lambda: self.graph_cats())
         graph_btn.grid(row=1, column=0, sticky="w", pady=10)
 
-        export_btn = tk.Button(frame, text="Export", command=lambda: self.export_stats())
+        export_btn = ttk.Button(frame, text="Export", style="Accent.TButton", command=lambda: self.export_stats())
         export_btn.grid(row=1, column=1, pady=10, sticky="e")
 
         separator = ttk.Separator(frame, orient="horizontal")
@@ -159,38 +209,50 @@ class GUI:
     Upgrade Column
     """
 
-    def on_button_upgrade_column(self,event, entity_name: str) -> None:
+    def on_button_upgrade_column(self, event, entity_name: str) -> None:
         if self.entities_frame[entity_name]["is_buyable"]:
             self.cats.add_entity(entity_name)
 
     def init_upgrade_column(self) -> None:
         # One full-width row per entity, stacked from the top of the column
         self.upgrade_column.columnconfigure(0, weight=1)
+        entities_title_label = ttk.Label(self.upgrade_column, text="Entities")
+        entities_title_label.grid(row=0, column=0, pady=10, sticky="ew")
         entities = Entities.get_entities()
         self.entities_frame = {}
         for row, entity_name in enumerate(entities):
             self.entities_frame[entity_name] = {}
-            frame = tk.Frame(self.upgrade_column, relief="groove", bd=2)
-            frame.grid(row=row, column=0, sticky="ew")
+            frame = ttk.Frame(self.upgrade_column, style="NotBuyable.TFrame", padding=2)
+            frame.grid(row=row + 1, column=0, sticky="ew", pady=(0, 5))
             frame.columnconfigure(0, weight=1)
-            frame.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
+            frame.bind("<Button-1>",
+                       lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event,
+                                                                                                  entity_name=entity_name))
             self.entities_frame[entity_name]["frame"] = frame
 
             name_entity = entities[entity_name]["name"]
-            label_entity_name = tk.Label(frame, text=name_entity[:15] + "..." if len(name_entity) > 15 else name_entity, anchor="w")
+            label_entity_name = ttk.Label(frame,
+                                          text=name_entity[:15] + "..." if len(name_entity) > 15 else name_entity,
+                                          anchor="w", style="NotBuyable.TLabel")
             label_entity_name.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
-            label_entity_name.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
+            label_entity_name.bind("<Button-1>",
+                                   lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(
+                                       event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["name"] = label_entity_name
 
-
-            label_entity_quantity = tk.Label(frame, text="quantity", anchor="w")
+            label_entity_quantity = ttk.Label(frame, text="quantity", anchor="w", style="NotBuyable.TLabel")
             label_entity_quantity.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
-            label_entity_quantity.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
+            label_entity_quantity.bind("<Button-1>",
+                                       lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(
+                                           event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["quantity"] = label_entity_quantity
 
-            label_entity_price = tk.Label(frame, text=str(entities[entity_name]["price"]) + " cats", anchor="w")
+            label_entity_price = ttk.Label(frame, text=str(entities[entity_name]["price"]) + " cats", anchor="w",
+                                           style="NotBuyable.TLabel")
             label_entity_price.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
-            label_entity_price.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
+            label_entity_price.bind("<Button-1>",
+                                    lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(
+                                        event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["price"] = label_entity_price
         self.update_upgrade_column()
 
@@ -198,29 +260,21 @@ class GUI:
         entities = Entities.get_entities()
         for entity_key in entities:
             entity = self.cats.get_entity_info(entity_key)
-            quantity_label : tk.Label = self.entities_frame[entity_key]["quantity"]
+            quantity_label: ttk.Label = self.entities_frame[entity_key]["quantity"]
             quantity_label.config(text=entity["amount_bought"])
 
-            price_label : tk.Label = self.entities_frame[entity_key]["price"]
+            price_label: ttk.Label = self.entities_frame[entity_key]["price"]
             price_label.config(text=str(Convert.convert(entity["price"], entity["price_power_of_ten"]) + " cats"))
 
-            name_label : tk.Label = self.entities_frame[entity_key]["name"]
+            name_label: ttk.Label = self.entities_frame[entity_key]["name"]
 
-            frame: tk.Frame = self.entities_frame[entity_key]["frame"]
-            if self.cats.is_buyable(entity_key):
-                frame.config(bg="#C8EACB")
-                quantity_label.config(bg="#C8EACB")
-                price_label.config(bg="#C8EACB")
-                name_label.config(bg="#C8EACB")
-                self.entities_frame[entity_key]["is_buyable"] = True
-            else:
-                frame.config(bg="#ff9b9b")
-                quantity_label.config(bg="#ff9b9b")
-                price_label.config(bg="#ff9b9b")
-                name_label.config(bg="#ff9b9b")
-                self.entities_frame[entity_key]["is_buyable"] = False
-
-
+            frame: ttk.Frame = self.entities_frame[entity_key]["frame"]
+            is_buyable = self.cats.is_buyable(entity_key)
+            prefix = "Buyable" if is_buyable else "NotBuyable"
+            frame.config(style=prefix + ".TFrame")
+            quantity_label.config(style=prefix + ".TLabel")
+            price_label.config(style=prefix + ".TLabel")
+            name_label.config(style=prefix + ".TLabel")
+            self.entities_frame[entity_key]["is_buyable"] = is_buyable
 
         quantity_label.after(100, self.update_upgrade_column)
-

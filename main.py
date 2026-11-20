@@ -1,5 +1,5 @@
 from GUI import *
-from json_mgmt import *
+from Json_MGMT import *
 
 
 def main():

@@ -2,7 +2,9 @@ import random
 import tkinter as tk
 from tkinter import ttk
 from Cat_counter import CatCounter
-from json_mgmt import JsonMGMT
+from Json_MGMT import JsonMGMT
+from style import COLORS, FONTS, new_window
+
 
 class TicTacToe:
     """This tic-tac-toe game is directly inspired from the following GitHub project: https://github.com/glsprasanthi/tkinter-mini-games/blob/main/tic_tac_toe.py"""
@@ -32,9 +34,7 @@ class TicTacToe:
         self.cats = cats
         self.save = save
 
-        self.popup = tk.Toplevel(window)
-        self.popup.title(self.NAME)
-        self.popup.transient(window)
+        self.popup = new_window(window, self.NAME)
         self.popup.protocol("WM_DELETE_WINDOW", self.quit_game)
 
         self.content = None
@@ -54,20 +54,20 @@ class TicTacToe:
         self.board = [""] * 9
         self.player_turn = True
 
-        self.content = tk.Frame(self.popup, padx=20, pady=20)
+        self.content = ttk.Frame(self.popup, padding=20)
         self.content.pack(expand=True, fill="both")
 
-        self.turn_label = tk.Label(self.content, text="Your turn (X)",
-                                   font=("TkDefaultFont", 16, "bold"), fg=self.PLAYER_COLOR)
+        self.turn_label = ttk.Label(self.content, text="Your turn (X)",
+                                    font=FONTS['heading'], foreground=self.PLAYER_COLOR)
         self.turn_label.pack(pady=(0, 10))
 
-        grid_frame = tk.Frame(self.content, bg="#333333", bd=5)
+        grid_frame = tk.Frame(self.content, bg=COLORS['accent'], bd=5)
         grid_frame.pack()
 
         self.buttons = []
         for i in range(9):
-            btn = tk.Button(grid_frame, text="", font=("TkDefaultFont", 32, "bold"),
-                            width=3, height=1, bg="#ffffff",
+            btn = tk.Button(grid_frame, text="", font=FONTS['board'], width=3, height=1,
+                            bg=COLORS['card'], activebackground=COLORS['hover'], relief="flat",
                             command=lambda idx=i: self.player_move(idx))
             btn.grid(row=i // 3, column=i % 3, padx=4, pady=4)
             self.buttons.append(btn)
@@ -90,7 +90,7 @@ class TicTacToe:
             return
 
         self.player_turn = False
-        self.turn_label.config(text="Computer's turn (O)", fg=self.COMPUTER_COLOR)
+        self.turn_label.config(text="Computer's turn (O)", foreground=self.COMPUTER_COLOR)
         self.ai_job = self.popup.after(400, self.ai_move)
 
     def ai_move(self) -> None:
@@ -111,7 +111,7 @@ class TicTacToe:
             return
 
         self.player_turn = True
-        self.turn_label.config(text="Your turn (X)", fg=self.PLAYER_COLOR)
+        self.turn_label.config(text="Your turn (X)", foreground=self.PLAYER_COLOR)
 
     def find_winning_move(self, symbol: str, empty_indices: list):
         for idx in empty_indices:
@@ -196,19 +196,19 @@ class TicTacToe:
         cats_gained = self.reward(seconds)
 
         self.content.destroy()
-        self.content = tk.Frame(self.popup, padx=40, pady=40)
+        self.content = ttk.Frame(self.popup, padding=40)
         self.content.pack(expand=True, fill="both")
 
-        result_label = tk.Label(self.content, text=message, font=("TkDefaultFont", 20, "bold"))
+        result_label = ttk.Label(self.content, text=message, style="Title.TLabel")
         result_label.pack(pady=10)
 
-        reward_label = tk.Label(self.content, text=f"You earned {cats_gained} cats")
+        reward_label = ttk.Label(self.content, text=f"You earned {cats_gained} cats")
         reward_label.pack(pady=10)
 
-        buttons_frame = tk.Frame(self.content)
+        buttons_frame = ttk.Frame(self.content)
         buttons_frame.pack(pady=10)
 
-        play_again_btn = ttk.Button(buttons_frame, text="Play again", command=self.start_game)
+        play_again_btn = ttk.Button(buttons_frame, text="Play again", style="Accent.TButton", command=self.start_game)
         play_again_btn.grid(row=0, column=0, padx=5)
 
         quit_btn = ttk.Button(buttons_frame, text="Quit", command=self.quit_game)

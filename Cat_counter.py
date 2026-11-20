@@ -2,9 +2,10 @@ import json
 from entities.Entities import Entities
 from convert.convert import Convert
 
+
 class CatCounter:
     rounded_to = 12
-    price_augmentation = 1.05 # 5% augmentation in price each time you buy an item
+    price_augmentation = 1.05  # 5% augmentation in price each time you buy an item
 
     cats: float
     power_of_ten: int
@@ -47,8 +48,7 @@ class CatCounter:
         self.init_entities(save)
         self.global_modifier = save["global_modifier"]
 
-
-    def init_entities(self, save : dict) -> None:
+    def init_entities(self, save: dict) -> None:
         self.entities_bought = save["entities"]
         self.entities_list = Entities.get_entities()
         for entity_key in self.entities_list:
@@ -59,9 +59,9 @@ class CatCounter:
                     "flat_cps": entity["cps"],
                     "flat_cps_power_of_ten": entity["cps_power_of_ten"],
                     "modifier_cps": 0,
-                    "price" : entity["price"],
-                    "price_power_of_ten" : entity["price_power_of_ten"]
-            }
+                    "price": entity["price"],
+                    "price_power_of_ten": entity["price_power_of_ten"]
+                }
 
     def get_entity_info(self, entity_name: str) -> dict:
         return self.entities_bought[entity_name]
@@ -80,12 +80,14 @@ class CatCounter:
         future_price = self.entities_bought[entity_name]["price"] * self.price_augmentation
         if future_price > 1000:
             self.entities_bought[entity_name]["price_power_of_ten"] += 3
-            self.entities_bought[entity_name]["price"] = round(self.entities_bought[entity_name]["price"]/1000, self.rounded_to)
+            self.entities_bought[entity_name]["price"] = round(self.entities_bought[entity_name]["price"] / 1000,
+                                                               self.rounded_to)
         self.entities_bought[entity_name]["price"] *= self.price_augmentation
         self.update_cats_per_second()
 
         if self.power_of_ten - self.entities_bought[entity_name]["price_power_of_ten"] < self.rounded_to:
-            self.cats -= self.entities_bought[entity_name]["price"] * (10** (self.entities_bought[entity_name]["price_power_of_ten"] - self.power_of_ten))
+            self.cats -= self.entities_bought[entity_name]["price"] * (
+                        10 ** (self.entities_bought[entity_name]["price_power_of_ten"] - self.power_of_ten))
 
     def is_buyable(self, entity_name: str) -> bool:
         entity = self.entities_bought[entity_name]
@@ -115,13 +117,13 @@ class CatCounter:
             new_cats_power_of_ten += 3
             time /= 1000
 
-        return Convert.convert(self.cats_per_seconds * (time/1000),new_cats_power_of_ten)
+        return Convert.convert(self.cats_per_seconds * (time / 1000), new_cats_power_of_ten)
 
     def calculate_entity_cps(self, entity_name: str) -> tuple:
         """Cats per second produced by every bought unit of an entity, before the global modifier"""
         entity = self.entities_bought[entity_name]
         entity_calculated_cps = entity["amount_bought"] * entity["flat_cps"] + (
-                    entity["amount_bought"] * entity["flat_cps"] * entity["modifier_cps"])
+                entity["amount_bought"] * entity["flat_cps"] * entity["modifier_cps"])
         entity_calculated_cps_power_of_ten = entity["flat_cps_power_of_ten"]
 
         while entity_calculated_cps > 1000:
@@ -147,7 +149,7 @@ class CatCounter:
 
             if new_cats_per_seconds_power_of_ten - entity_calculated_cps_power_of_ten < self.rounded_to:
                 new_cats_per_seconds += entity_calculated_cps * 10 ** (
-                            entity_calculated_cps_power_of_ten - new_cats_per_seconds_power_of_ten)
+                        entity_calculated_cps_power_of_ten - new_cats_per_seconds_power_of_ten)
 
             if new_cats_per_seconds > 1000:
                 new_cats_per_seconds = round(new_cats_per_seconds / 1000, self.rounded_to)
@@ -159,11 +161,11 @@ class CatCounter:
             new_cats_per_seconds_power_of_ten += 3
 
         self.cats_per_seconds = new_cats_per_seconds - (self.cats_per_seconds * 10 ** (
-                    self.cats_per_seconds_power_of_ten - new_cats_per_seconds_power_of_ten))
+                self.cats_per_seconds_power_of_ten - new_cats_per_seconds_power_of_ten))
         self.cats_per_seconds_power_of_ten = new_cats_per_seconds_power_of_ten
 
     def get_cats_per_click(self) -> str:
-        return Convert.convert(self.cats_per_click,self.cats_per_click_power_of_ten)
+        return Convert.convert(self.cats_per_click, self.cats_per_click_power_of_ten)
 
     def add_cats(self, nb_cats: tuple) -> None:
         self.cats += round(nb_cats[0] * (10 ** (nb_cats[1] - self.power_of_ten)), self.rounded_to)
