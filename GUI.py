@@ -184,8 +184,9 @@ class GUI:
     Upgrade Column
     """
 
-    def on_button_upgrade_column(self, entity_name: str) -> None:
-        self.cats.add_entity(entity_name)
+    def on_button_upgrade_column(self,event, entity_name: str) -> None:
+        if self.entities_frame[entity_name]["is_buyable"]:
+            self.cats.add_entity(entity_name)
 
     def init_upgrade_column(self) -> None:
         # One full-width row per entity, stacked from the top of the column
@@ -197,24 +198,24 @@ class GUI:
             frame = tk.Frame(self.upgrade_column, relief="groove", bd=2)
             frame.grid(row=row, column=0, sticky="ew")
             frame.columnconfigure(0, weight=1)
+            frame.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["frame"] = frame
 
             name_entity = entities[entity_name]["name"]
             label_entity_name = tk.Label(frame, text=name_entity[:15] + "..." if len(name_entity) > 15 else name_entity, anchor="w")
             label_entity_name.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+            label_entity_name.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["name"] = label_entity_name
+
 
             label_entity_quantity = tk.Label(frame, text="quantity", anchor="w")
             label_entity_quantity.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+            label_entity_quantity.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["quantity"] = label_entity_quantity
-
-            button = ttk.Button(frame, text="buy",
-                                command=lambda entity_name=entity_name: self.on_button_upgrade_column(entity_name))
-            button.grid(row=1, column=1, sticky="e", padx=5, pady=5)
-            self.entities_frame[entity_name]["button"] = button
 
             label_entity_price = tk.Label(frame, text=str(entities[entity_name]["price"]) + " cats", anchor="w")
             label_entity_price.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+            label_entity_price.bind("<Button-1>", lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["price"] = label_entity_price
         self.update_upgrade_column()
 
@@ -228,12 +229,23 @@ class GUI:
             price_label : tk.Label = self.entities_frame[entity_key]["price"]
             price_label.config(text=str(Convert.convert(entity["price"], entity["price_power_of_ten"]) + " cats"))
 
-            is_boughtable = self.cats.is_boughtable(entity_key)
-            bought_label : tk.Button = self.entities_frame[entity_key]["button"]
-            if is_boughtable:
-                bought_label.config(state="normal")
+            name_label : tk.Label = self.entities_frame[entity_key]["name"]
+
+            frame: tk.Frame = self.entities_frame[entity_key]["frame"]
+            if self.cats.is_buyable(entity_key):
+                frame.config(bg="#C8EACB")
+                quantity_label.config(bg="#C8EACB")
+                price_label.config(bg="#C8EACB")
+                name_label.config(bg="#C8EACB")
+                self.entities_frame[entity_key]["is_buyable"] = True
             else:
-                bought_label.config(state="disabled")
+                frame.config(bg="#ff9b9b")
+                quantity_label.config(bg="#ff9b9b")
+                price_label.config(bg="#ff9b9b")
+                name_label.config(bg="#ff9b9b")
+                self.entities_frame[entity_key]["is_buyable"] = False
+
+
 
         quantity_label.after(100, self.update_upgrade_column)
 

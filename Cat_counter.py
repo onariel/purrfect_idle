@@ -87,7 +87,7 @@ class CatCounter:
         if self.power_of_ten - self.entities_bought[entity_name]["price_power_of_ten"] < self.rounded_to:
             self.cats -= self.entities_bought[entity_name]["price"] * (10** (self.entities_bought[entity_name]["price_power_of_ten"] - self.power_of_ten))
 
-    def is_boughtable(self, entity_name: str) -> bool:
+    def is_buyable(self, entity_name: str) -> bool:
         entity = self.entities_bought[entity_name]
         if self.power_of_ten > entity["price_power_of_ten"]:
             return True
