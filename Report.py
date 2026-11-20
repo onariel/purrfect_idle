@@ -5,6 +5,8 @@ from Cat_counter import CatCounter
 from json_mgmt import JsonMGMT
 from minigames.minigames import Minigames
 from graph import draw_minigame_pie
+import tkinter as tk
+import tkinter.messagebox
 
 A4 = (8.27, 11.69)
 
@@ -23,7 +25,7 @@ class Report:
             with PdfPages(self.REPORT_PATH) as pdf:
                 pdf.savefig(self.statistics_page())
                 pdf.savefig(self.minigames_page())
-            print("Report exported successfully")
+            tk.messagebox.showinfo("Report Export.", "Report exported successfully!")
         except Exception as e:
             print(e)
 
@@ -37,14 +39,14 @@ class Report:
 
         rows = []
         for entity_name, entity in self.save.data["entities"].items():
-            cps = f"{entity['flat_cps']}*10**{entity['flat_cps_power_of_ten']}"
+            cps = f"{self.cats.get_entity_cps(entity_name)}/s"
             rows.append([entity_name, entity["amount_bought"], cps])
 
         axes = figure.add_axes((0.1, 0.3, 0.8, 0.45))
         axes.axis("off")
         axes.set_title("Entities Statistics")
         axes.table(cellText=rows,
-                   colLabels=["Entities", "Quantity", "Cumulative Productions"],
+                   colLabels=["Entities", "Quantity", "Cats per seconds"],
                    loc="upper center")
         return figure
 

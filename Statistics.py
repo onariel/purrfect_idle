@@ -61,7 +61,7 @@ class Statistics:
         entity_qtt_label = tk.Label(frame, text="Quantity: ")
         entity_qtt_label.grid(row=0, column=1)
 
-        entity_cps_label = tk.Label(frame, text="Cumulative Productions: ")
+        entity_cps_label = tk.Label(frame, text="Cats per seconds: ")
         entity_cps_label.grid(row=0, column=2, sticky="e")
 
         for row, entity_name in enumerate(self.save.data["entities"]):
