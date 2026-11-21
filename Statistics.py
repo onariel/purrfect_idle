@@ -37,6 +37,9 @@ class Statistics:
         cats_per_clicks_label = ttk.Label(self.parent, text="Cat per Clicks: ")
         cats_per_clicks_label.grid(row=self.row + 4, column=0, sticky="w")
 
+        all_time_cats_label = ttk.Label(self.parent, text="All Time Cats: ")
+        all_time_cats_label.grid(row=self.row + 5, column=0, sticky="w")
+
         self.total_cats_value = ttk.Label(self.parent)
         self.total_cats_value.grid(row=self.row + 2, column=1, sticky="e")
 
@@ -46,13 +49,16 @@ class Statistics:
         self.cats_per_clicks_value = ttk.Label(self.parent)
         self.cats_per_clicks_value.grid(row=self.row + 4, column=1, sticky="e")
 
+        self.all_time_cats_value = ttk.Label(self.parent)
+        self.all_time_cats_value.grid(row=self.row + 5, column=1, sticky="e")
+
     def entities_stats(self) -> None:
         entities = Entities.get_entities()
         entities_section_label = ttk.Label(self.parent, text="Entities Statistics", style="Section.TLabel")
-        entities_section_label.grid(row=self.row + 5, column=0, columnspan=2, sticky="ew", pady=(10, 5))
+        entities_section_label.grid(row=self.row + 6, column=0, columnspan=2, sticky="ew", pady=(10, 5))
 
         frame = ttk.Frame(self.parent)
-        frame.grid(row=self.row + 6, column=0, columnspan=2, sticky="nsew")
+        frame.grid(row=self.row + 7, column=0, columnspan=2, sticky="nsew")
         for column in range(3):
             frame.columnconfigure(column, weight=1, uniform="entities")
 
@@ -124,6 +130,8 @@ class Statistics:
 
         nb_cats_per_click = self.cats.get_cats_per_click()
         self.cats_per_clicks_value.config(text=nb_cats_per_click)
+
+        self.all_time_cats_value.config(text=self.cats.get_total_cats())
 
         for entity_name, (label_quantity, label_cps) in self.entities_labels.items():
             entity = self.save.data["entities"][entity_name]

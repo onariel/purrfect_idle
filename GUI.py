@@ -6,7 +6,7 @@ from entities.Entities import Entities
 from entities.Upgrades import Upgrades
 from Json_MGMT import JsonMGMT
 from minigames.minigames import Minigames
-from graph import Graph
+from Graph import Graph
 from Statistics import Statistics
 from convert.convert import Convert
 from Report import Report
@@ -49,6 +49,9 @@ class GUI:
         self.window_height = 1080
         self.window.title("Purrfect Idle")
         self.window.geometry(str(self.window_height) + "x" + str(self.window_width))
+
+        self.icon = ImageTk.PhotoImage(Image.open("images/purrfect_idle.ico"))
+        self.window.iconphoto(True, self.icon)
 
         # Three columns: sides = 1 part each, center = 3 parts
         self.window.columnconfigure(0, weight=1, uniform="cols")
@@ -93,6 +96,7 @@ class GUI:
         """Autosave every minutes"""
         self.save_file()
         self.window.after(10000, self.autosave)
+        self.save.add_all_time_cats(self.cats.total_cats, self.cats.total_cats_power_of_ten)
 
     def on_close(self) -> None:
         self.save_file()
@@ -287,9 +291,13 @@ class GUI:
             if i < len(self.upgrades_to_show):
                 is_buyable = "Buyable" if self.cats.is_upgrade_buyable(self.upgrades_to_show[i]) else "NotBuyable"
 
-                name_upgrade = ttk.Label(frame, text=self.upgrades_to_show[i]["name"], anchor="w",
-                                         style=f"{is_buyable}.TLabel")
-                name_upgrade.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+                if frame.winfo_children():
+                    name_upgrade = frame.winfo_children()[0]
+                    name_upgrade.config(text=self.upgrades_to_show[i]["name"], style=f"{is_buyable}.TLabel")
+                else:
+                    name_upgrade = ttk.Label(frame, text=self.upgrades_to_show[i]["name"], anchor="w",
+                                             style=f"{is_buyable}.TLabel")
+                    name_upgrade.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
                 frame.config(style=f"{is_buyable}.TFrame")
 
                 frame.bind("<Button-1>",

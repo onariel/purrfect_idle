@@ -1,10 +1,13 @@
 import copy
 import json
 from pathlib import Path
+import datetime as dt
 
 
 class JsonMGMT:
     SAVE_PATH = Path("data") / "save.json"
+    TIMESTAMP_FORMAT = "%Y-%m-%d-%H:%M:%S"
+    MAX_CATS_HISTORY = 500
     DEFAULT_DATA = {
         "cats": {
             "cats": 0,
@@ -27,7 +30,12 @@ class JsonMGMT:
                 "lose": 0
             }
         },
-        "global_modifier": 0
+        "global_modifier": 0,
+        "total_cats": {
+            "cats": 0,
+            "power_of_ten": 0
+        },
+        "all_time_cats": []
     }
 
     def __init__(self):
@@ -62,5 +70,20 @@ class JsonMGMT:
             if last_key not in target:
                 raise KeyError(f"Invalid path: '{path}' (missing '{last_key}')")
             target[last_key] = value
+        if save:
+            self.save()
+
+    def add_all_time_cats(self, cats: float, power_of_ten: int, save: bool = True) -> None:
+        history = self.data.setdefault("all_time_cats", [])
+        if not isinstance(history, list):  # old saves stored a dict
+            history = self.data["all_time_cats"] = []
+
+        history.append({
+            "timestamp": dt.datetime.now().strftime(self.TIMESTAMP_FORMAT),
+            "cats": cats,
+            "power_of_ten": power_of_ten
+        })
+        del history[:-self.MAX_CATS_HISTORY]  # keep only the newest entries
+
         if save:
             self.save()

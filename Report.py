@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 from Cat_counter import CatCounter
 from Json_MGMT import JsonMGMT
 from minigames.minigames import Minigames
-from graph import draw_minigame_pie
+from Graph import *
 import tkinter as tk
 import tkinter.messagebox
 
@@ -24,6 +24,7 @@ class Report:
         try:
             with PdfPages(self.REPORT_PATH) as pdf:
                 pdf.savefig(self.statistics_page())
+                pdf.savefig(self.all_time_cats_page())
                 pdf.savefig(self.minigames_page())
             tk.messagebox.showinfo("Report Export.", "Report exported successfully!")
         except Exception as e:
@@ -48,6 +49,21 @@ class Report:
         axes.table(cellText=rows,
                    colLabels=["Entities", "Quantity", "Cats per seconds"],
                    loc="upper center")
+        return figure
+
+    def all_time_cats_page(self) -> Figure:
+        figure = Figure(figsize=A4)
+        figure.suptitle("All time cats", fontsize=16, weight="bold")
+
+        timestamps, cats = load_all_time_cats(self.save)
+
+        axes = figure.add_axes((0.15, 0.5, 0.75, 0.35))
+        if len(timestamps) < 2:
+            axes.axis("off")
+            axes.text(0.5, 0.5, "Not enough data yet, keep playing!", ha="center")
+            return figure
+        draw_all_time_cats(axes, timestamps, cats)
+
         return figure
 
     def minigames_page(self) -> Figure:

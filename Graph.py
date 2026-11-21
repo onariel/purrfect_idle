@@ -6,6 +6,7 @@ from minigames.minigames import Minigames
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from style import COLORS, new_window
+import datetime as dt
 
 
 def draw_minigame_pie(axes, values: list) -> None:
@@ -26,6 +27,28 @@ def draw_minigame_pie(axes, values: list) -> None:
                 frameon=False)
 
 
+def load_all_time_cats(save: JsonMGMT) -> tuple[list, list]:
+    """Turn the saved history into two lists that matplotlib can plot (shared with Report)"""
+    timestamps = []
+    cats = []
+    for entry in save.data["all_time_cats"]:
+        timestamps.append(dt.datetime.strptime(entry["timestamp"], JsonMGMT.TIMESTAMP_FORMAT))
+        cats.append(entry["cats"] * 10 ** entry["power_of_ten"])
+    return timestamps, cats
+
+
+def draw_all_time_cats(axes, timestamps: list, cats: list) -> None:
+    """Draw the All time cats line on the given axes (shared with Report)"""
+    axes.plot(timestamps, cats, color="#5c6bc0", linewidth=2)
+    axes.set_yscale("log")  # idle numbers grow exponentially
+    axes.set_ylabel("Cats")
+    axes.grid(True, color=COLORS['line'])
+    # Tilt the dates on these axes only so they don't overlap
+    axes.tick_params(axis="x", labelrotation=30)
+    for label in axes.get_xticklabels():
+        label.set_horizontalalignment("right")
+
+
 class Graph:
 
     def __init__(self, window: tk.Tk, cats: CatCounter, save: JsonMGMT) -> None:
@@ -43,15 +66,38 @@ class Graph:
         self.page.grid(row=0, column=0, sticky="nsew")
 
         self.minigames_ratio = ttk.Frame(self.page)
-        self.graph2 = ttk.Frame(self.page)
+        self.all_time_cats = ttk.Frame(self.page)
 
         self.init_notebook()
 
     def init_notebook(self) -> None:
+        self.page.add(self.all_time_cats, text="All time cats")
         self.page.add(self.minigames_ratio, text="Minigames Ratio")
-        self.page.add(self.graph2, text="Graph2")
 
         self.init_minigames_ratio()
+        self.init_all_time_cats()
+
+    def init_all_time_cats(self) -> None:
+        self.all_time_cats.columnconfigure(0, weight=1)
+        self.all_time_cats.rowconfigure(1, weight=1)
+
+        title_label = ttk.Label(self.all_time_cats, text="All time cats", style="Title.TLabel")
+        title_label.grid(row=0, column=0, padx=10, pady=10)
+
+        timestamps, cats = load_all_time_cats(self.save)
+
+        if len(timestamps) < 2:
+            no_data = ttk.Label(self.all_time_cats, text="Not enough data yet, keep playing!", style="Muted.TLabel")
+            no_data.grid(row=1, column=0, padx=10, pady=10)
+            return
+
+        figure = Figure(figsize=(6, 4), layout="constrained", facecolor=COLORS['card'])
+        axes = figure.add_subplot()
+        draw_all_time_cats(axes, timestamps, cats)
+
+        canvas = FigureCanvasTkAgg(figure, master=self.all_time_cats)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
     def init_minigames_ratio(self) -> None:
         self.minigames_ratio.columnconfigure(0, weight=1)
