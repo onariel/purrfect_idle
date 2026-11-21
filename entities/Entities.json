@@ -21,10 +21,31 @@
     "price_power_of_ten" : 3
   },
   "ball-of-wool":{
-    "name": "Ball of wool",
+    "name": "Ball of Wool",
     "cps": 100,
     "cps_power_of_ten": 0,
     "price": 100,
     "price_power_of_ten" : 3
+  },
+  "cat-cafe":{
+    "name": "Cat Café",
+    "cps": 200,
+    "cps_power_of_ten": 0,
+    "price": 1,
+    "price_power_of_ten" : 6
+  },
+  "cat-cloning-lab":{
+    "name": "Cat Cloning Lab",
+    "cps": 500,
+    "cps_power_of_ten": 0,
+    "price": 10,
+    "price_power_of_ten" : 6
+  },
+  "space-kitten":{
+    "name": "Space Kitten",
+    "cps": 1,
+    "cps_power_of_ten": 3,
+    "price": 100,
+    "price_power_of_ten" : 6
   }
 }
