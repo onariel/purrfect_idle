@@ -34,6 +34,8 @@ class CatCounter:
     """This global modifier will apply to total cps"""
     global_modifier: float
     entities_list: dict
+    """This will just be a list of the names of the upgrades that have been boughts"""
+    upgrades_bought: list
 
     def __init__(self, save: dict) -> None:
         self.cats = save["cats"]["cats"]
@@ -47,6 +49,8 @@ class CatCounter:
 
         self.init_entities(save)
         self.global_modifier = save["global_modifier"]
+
+        self.upgrades_bought = save["upgrades"]
 
     def init_entities(self, save: dict) -> None:
         self.entities_bought = save["entities"]
@@ -89,7 +93,7 @@ class CatCounter:
             self.cats -= self.entities_bought[entity_name]["price"] * (
                         10 ** (self.entities_bought[entity_name]["price_power_of_ten"] - self.power_of_ten))
 
-    def is_buyable(self, entity_name: str) -> bool:
+    def is_entity_buyable(self, entity_name: str) -> bool:
         entity = self.entities_bought[entity_name]
         if self.power_of_ten > entity["price_power_of_ten"]:
             return True
@@ -122,8 +126,7 @@ class CatCounter:
     def calculate_entity_cps(self, entity_name: str) -> tuple:
         """Cats per second produced by every bought unit of an entity, before the global modifier"""
         entity = self.entities_bought[entity_name]
-        entity_calculated_cps = entity["amount_bought"] * entity["flat_cps"] + (
-                entity["amount_bought"] * entity["flat_cps"] * entity["modifier_cps"])
+        entity_calculated_cps = entity["amount_bought"] * entity["flat_cps"] * ((entity["modifier_cps"]/100) +1)
         entity_calculated_cps_power_of_ten = entity["flat_cps_power_of_ten"]
 
         while entity_calculated_cps > 1000:
@@ -135,7 +138,7 @@ class CatCounter:
     def get_entity_cps(self, entity_name: str) -> str:
         """Real cats per second produced by an entity, global modifier included"""
         entity_cps, entity_cps_power_of_ten = self.calculate_entity_cps(entity_name)
-        entity_cps += entity_cps * self.global_modifier
+        entity_cps += entity_cps * self.global_modifier/100
         while entity_cps > 1000:
             entity_cps = round(entity_cps / 1000, self.rounded_to)
             entity_cps_power_of_ten += 3
@@ -155,7 +158,7 @@ class CatCounter:
                 new_cats_per_seconds = round(new_cats_per_seconds / 1000, self.rounded_to)
                 new_cats_per_seconds_power_of_ten += 3
 
-        new_cats_per_seconds += new_cats_per_seconds * self.global_modifier
+        new_cats_per_seconds += new_cats_per_seconds * (self.global_modifier/100)
         if new_cats_per_seconds > 1000:
             new_cats_per_seconds = round(new_cats_per_seconds / 1000, self.rounded_to)
             new_cats_per_seconds_power_of_ten += 3
@@ -185,6 +188,23 @@ class CatCounter:
         self.cats += round(self.cats_per_click * (10 ** (self.cats_per_click_power_of_ten - self.power_of_ten)),
                            self.rounded_to)
 
+    def is_upgrade_buyable(self, upgrade: dict) -> bool:
+        if self.power_of_ten > upgrade["price_power_of_ten"]:
+            return True
+        elif self.power_of_ten == upgrade["price_power_of_ten"]:
+            if self.cats >= upgrade["price"]:
+                return True
+        return False
+
+    def buy_upgrade(self, upgrade: dict) -> None:
+        print(upgrade["type"], upgrade["value"])
+        if upgrade["type"] == "%entity_modifier":
+            self.entities_bought[upgrade["entity"]]["modifier_cps"] += upgrade["value"]
+        elif upgrade["type"] == "%global_modifier":
+            self.global_modifier += upgrade["value"]
+
+        self.upgrades_bought.append(upgrade["name"])
+
     def save_cats_info(self) -> dict:
         return {
             "cats.cats": self.cats,
@@ -193,4 +213,6 @@ class CatCounter:
             "cats_per_seconds.power_of_ten": self.cats_per_seconds_power_of_ten,
             "cats_per_click.cats": self.cats_per_click,
             "cats_per_click.power_of_ten": self.cats_per_click_power_of_ten,
+            "upgrades": self.upgrades_bought,
+            "global_modifier": self.global_modifier,
         }

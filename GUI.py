@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from Cat_counter import CatCounter
 from entities.Entities import Entities
+from entities.Upgrades import Upgrades
 from Json_MGMT import JsonMGMT
 from minigames.minigames import Minigames
 from graph import Graph
@@ -209,25 +210,47 @@ class GUI:
     Upgrade Column
     """
 
-    def on_button_upgrade_column(self, event, entity_name: str) -> None:
+    def on_entity_bought(self, event, entity_name: str) -> None:
         if self.entities_frame[entity_name]["is_buyable"]:
             self.cats.add_entity(entity_name)
 
     def init_upgrade_column(self) -> None:
         # One full-width row per entity, stacked from the top of the column
         self.upgrade_column.columnconfigure(0, weight=1)
+        row = 0  # 3 rows are reserved for the upgrades and the title upgrade
+        self.number_of_rows_of_upgrades = 2
+        self.number_of_upgrades_per_row = 4
+        self.upgrades: list = Upgrades.get_upgrades(self.save)
+        upgrades_title_label = ttk.Label(self.upgrade_column, text="Upgrades:")
+        upgrades_title_label.grid(row=row, column=0, pady=10, sticky="ew")
+        row += 1
+
+        self.calculate_which_upgrades_to_show()
+
+        self.upgrades_frames = []
+        for j in range(self.number_of_rows_of_upgrades):
+            frame_upgrades_row = ttk.Frame(self.upgrade_column)
+            frame_upgrades_row.grid(row=row, column=0, pady=10, sticky="ew")
+
+            for i in range(self.number_of_upgrades_per_row):
+                frame = ttk.Frame(frame_upgrades_row, style="NotBuyable.TFrame", padding=2)
+                frame.grid(row=0, column=i, sticky="ew", pady=(0, 5))
+                self.upgrades_frames.append(frame)
+            row += 1
+
         entities_title_label = ttk.Label(self.upgrade_column, text="Entities")
-        entities_title_label.grid(row=0, column=0, pady=10, sticky="ew")
+        entities_title_label.grid(row=row, column=0, pady=10, sticky="ew")
         entities = Entities.get_entities()
         self.entities_frame = {}
-        for row, entity_name in enumerate(entities):
+        for entity_name in entities:
+            row += 1
             self.entities_frame[entity_name] = {}
             frame = ttk.Frame(self.upgrade_column, style="NotBuyable.TFrame", padding=2)
             frame.grid(row=row + 1, column=0, sticky="ew", pady=(0, 5))
             frame.columnconfigure(0, weight=1)
             frame.bind("<Button-1>",
-                       lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(event=event,
-                                                                                                  entity_name=entity_name))
+                       lambda event="oui", entity_name=entity_name: self.on_entity_bought(event=event,
+                                                                                          entity_name=entity_name))
             self.entities_frame[entity_name]["frame"] = frame
 
             name_entity = entities[entity_name]["name"]
@@ -236,14 +259,14 @@ class GUI:
                                           anchor="w", style="NotBuyable.TLabel")
             label_entity_name.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
             label_entity_name.bind("<Button-1>",
-                                   lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(
+                                   lambda event="oui", entity_name=entity_name: self.on_entity_bought(
                                        event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["name"] = label_entity_name
 
             label_entity_quantity = ttk.Label(frame, text="quantity", anchor="w", style="NotBuyable.TLabel")
             label_entity_quantity.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
             label_entity_quantity.bind("<Button-1>",
-                                       lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(
+                                       lambda event="oui", entity_name=entity_name: self.on_entity_bought(
                                            event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["quantity"] = label_entity_quantity
 
@@ -251,12 +274,41 @@ class GUI:
                                            style="NotBuyable.TLabel")
             label_entity_price.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
             label_entity_price.bind("<Button-1>",
-                                    lambda event="oui", entity_name=entity_name: self.on_button_upgrade_column(
+                                    lambda event="oui", entity_name=entity_name: self.on_entity_bought(
                                         event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["price"] = label_entity_price
         self.update_upgrade_column()
 
     def update_upgrade_column(self) -> None:
+
+        # upgrade update
+        i = 0
+        for frame in self.upgrades_frames:
+            if i < len(self.upgrades_to_show):
+                is_buyable = "Buyable" if self.cats.is_upgrade_buyable(self.upgrades_to_show[i]) else "NotBuyable"
+
+                name_upgrade = ttk.Label(frame, text=self.upgrades_to_show[i]["name"], anchor="w",
+                                         style=f"{is_buyable}.TLabel")
+                name_upgrade.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+                frame.config(style=f"{is_buyable}.TFrame")
+
+                frame.bind("<Button-1>",
+                           lambda event="oui", upgrade=self.upgrades_to_show[i],
+                                  is_buyable=is_buyable: self.on_upgrade_bought(event=event,
+                                                                                upgrade=upgrade, is_buyable=is_buyable))
+                name_upgrade.bind("<Button-1>",
+                                  lambda event="oui", upgrade=self.upgrades_to_show[i],
+                                         is_buyable=is_buyable: self.on_upgrade_bought(event=event,
+                                                                                       upgrade=upgrade,
+                                                                                       is_buyable=is_buyable))
+            else:
+                for child in frame.winfo_children():
+                    child.destroy()
+                frame.unbind("<Button-1>")
+
+            i += 1
+
+        # entity update
         entities = Entities.get_entities()
         for entity_key in entities:
             entity = self.cats.get_entity_info(entity_key)
@@ -269,7 +321,7 @@ class GUI:
             name_label: ttk.Label = self.entities_frame[entity_key]["name"]
 
             frame: ttk.Frame = self.entities_frame[entity_key]["frame"]
-            is_buyable = self.cats.is_buyable(entity_key)
+            is_buyable = self.cats.is_entity_buyable(entity_key)
             prefix = "Buyable" if is_buyable else "NotBuyable"
             frame.config(style=prefix + ".TFrame")
             quantity_label.config(style=prefix + ".TLabel")
@@ -278,3 +330,20 @@ class GUI:
             self.entities_frame[entity_key]["is_buyable"] = is_buyable
 
         quantity_label.after(100, self.update_upgrade_column)
+
+
+    def on_upgrade_bought(self, event, upgrade: dict, is_buyable: str) -> None:
+        if is_buyable == "Buyable":
+            self.upgrades.remove(upgrade)
+            self.upgrades_to_show.remove(upgrade)
+            self.calculate_which_upgrades_to_show()
+            self.cats.buy_upgrade(upgrade)
+
+
+    def calculate_which_upgrades_to_show(self) -> None:
+        self.upgrades_to_show = []
+        if len(self.upgrades) > self.number_of_rows_of_upgrades * self.number_of_upgrades_per_row:
+            self.upgrades_to_show = self.upgrades[:self.number_of_rows_of_upgrades * self.number_of_upgrades_per_row].copy()
+        else:
+            self.upgrades_to_show = self.upgrades.copy()
+
