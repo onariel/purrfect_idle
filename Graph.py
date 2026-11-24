@@ -5,7 +5,7 @@ from Json_MGMT import JsonMGMT
 from minigames.minigames import Minigames
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from style import COLORS, new_window
+from Style import COLORS, new_window
 import datetime as dt
 
 
@@ -38,7 +38,7 @@ def load_all_time_cats(save: JsonMGMT) -> tuple[list, list]:
 
 
 def draw_all_time_cats(axes, timestamps: list, cats: list) -> None:
-    """Draw the All time cats line on the given axes (shared with Report)"""
+    """Draw the All-time cats line on the given axes (shared with Report)"""
     axes.plot(timestamps, cats, color="#5c6bc0", linewidth=2)
     axes.set_yscale("log")  # idle numbers grow exponentially
     axes.set_ylabel("Cats")
@@ -81,8 +81,14 @@ class Graph:
         self.all_time_cats.columnconfigure(0, weight=1)
         self.all_time_cats.rowconfigure(1, weight=1)
 
-        title_label = ttk.Label(self.all_time_cats, text="All time cats", style="Title.TLabel")
-        title_label.grid(row=0, column=0, padx=10, pady=10)
+        title_frame = ttk.Frame(self.all_time_cats)
+        title_frame.grid(row=0, column=0, sticky="nsew", padx=10)
+
+        title_label = ttk.Label(title_frame, text="All time cats", style="Title.TLabel")
+        title_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+        subtitle_label = ttk.Label(title_frame, text="The total number of cats you gained.", style="Subtitle.TLabel")
+        subtitle_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
 
         timestamps, cats = load_all_time_cats(self.save)
 
@@ -102,13 +108,17 @@ class Graph:
     def init_minigames_ratio(self) -> None:
         self.minigames_ratio.columnconfigure(0, weight=1)
 
+        title_label = ttk.Label(self.minigames_ratio, text="Minigames Ratio", style="Title.TLabel")
+        title_label.grid(row=0, column=0, padx=10, pady=10)
+
+        subtitle_label = ttk.Label(self.minigames_ratio, text="The ratio of WIN / LOSS / TIE in the different games.",
+                                   style="Subtitle.TLabel")
+        subtitle_label.grid(row=1, column=0, padx=10, pady=0)
+
         frame = ttk.Frame(self.minigames_ratio)
-        frame.grid(row=0, column=0, sticky="nsew", padx=10)
+        frame.grid(row=2, column=0, sticky="nsew", padx=10)
         for column in range(3):
             frame.columnconfigure(column, weight=1, uniform="minigames")
-
-        title_label = ttk.Label(frame, text="Minigames Ratio", style="Title.TLabel")
-        title_label.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
 
         for i, game in enumerate(self.games.get_minigames()):
             self.load_minigame_stats(frame, game, i // 3 + 1, i % 3)

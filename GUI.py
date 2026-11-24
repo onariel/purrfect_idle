@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.messagebox
 from tkinter import ttk
 from PIL import Image, ImageTk
 from Cat_counter import CatCounter
@@ -10,7 +11,7 @@ from Graph import Graph
 from Statistics import Statistics
 from convert.convert import Convert
 from Report import Report
-from style import setup_style
+from Style import setup_style
 
 
 class GUI:
@@ -188,19 +189,26 @@ class GUI:
         title_label = ttk.Label(frame, text="You can view here the statistics of your game.")
         title_label.grid(row=0, column=0, columnspan=2, pady=10)
 
-        graph_btn = ttk.Button(frame, text="Open the Cat graph", command=lambda: self.graph_cats())
+        graph_btn = ttk.Button(frame, text="Open Graphical Statistics", command=lambda: self.graph_cats())
         graph_btn.grid(row=1, column=0, sticky="w", pady=10)
+
+        save_btn = ttk.Button(frame, text="Manual Save", style="Accent.TButton", command=lambda: self.manual_save())
+        save_btn.grid(row=2, column=1, sticky="w")
 
         export_btn = ttk.Button(frame, text="Export", style="Accent.TButton", command=lambda: self.export_stats())
         export_btn.grid(row=1, column=1, pady=10, sticky="e")
 
         separator = ttk.Separator(frame, orient="horizontal")
-        separator.grid(row=2, column=0, columnspan=2, pady=10, sticky="ew")
+        separator.grid(row=3, column=0, columnspan=2, pady=10, sticky="ew")
 
-        Statistics(frame, self.save, self.cats, 2)
+        Statistics(frame, self.save, self.cats, 3)
 
     def export_stats(self) -> None:
         self.report.export()
+
+    def manual_save(self) -> None:
+        tk.messagebox.showinfo("Manual Save", "Successfully saved your game.")
+        self.save_file()
 
     def graph_cats(self) -> None:
         # Use to display some graphs via Matplotlib (can be multiple graphs via notebook)
@@ -233,12 +241,11 @@ class GUI:
         self.upgrades_frame = []
         self.upgrades_images = {}
         for i in range(self.number_of_rows_of_upgrades):
-            frame  = ttk.Frame(self.upgrade_column, padding=2)
+            frame = ttk.Frame(self.upgrade_column, padding=2)
             frame.grid(row=row, column=0, sticky="ew", pady=(0, 5))
             row += 1
             self.upgrades_frame.append(frame)
         self.upgrades_buttons = []
-
 
         entities_title_label = ttk.Label(self.upgrade_column, text="Entities")
         entities_title_label.grid(row=row, column=0, pady=10, sticky="ew")
@@ -297,9 +304,10 @@ class GUI:
                 image = self.upgrades_images[upgrade["name"]]
             is_buyable = "Buyable" if self.cats.is_upgrade_buyable(upgrade) else "NotBuyable"
             if button.cget("text") != upgrade["name"]:
-                button.config( padding=2,
-                                    text=f"{upgrade["name"]}", command=lambda event="oui", upgrade=upgrade: self.on_upgrade_bought(
-                        event, upgrade), image=image, compound="image")
+                button.config(padding=2,
+                              text=f"{upgrade["name"]}",
+                              command=lambda event="oui", upgrade=upgrade: self.on_upgrade_bought(
+                                  event, upgrade), image=image, compound="image")
             i += 1
 
         if nb_of_upgrades_to_show > nb_of_buttons:
@@ -311,20 +319,19 @@ class GUI:
                     self.upgrades_images[upgrade["name"]] = image
                 else:
                     image = self.upgrades_images[upgrade["name"]]
-                button = ttk.Button(self.upgrades_frame[(i//self.number_of_upgrades_per_row)], padding=2,
-                                    text=f"{upgrade["name"]}", command=lambda event="oui", upgrade=upgrade,: self.on_upgrade_bought(
-                        event, upgrade), image=image, compound="image")
-                button.grid(row=0, column=i%self.number_of_upgrades_per_row, sticky="ew", padx=5, pady=5)
+                button = ttk.Button(self.upgrades_frame[(i // self.number_of_upgrades_per_row)], padding=2,
+                                    text=f"{upgrade["name"]}",
+                                    command=lambda event="oui", upgrade=upgrade,: self.on_upgrade_bought(
+                                        event, upgrade), image=image, compound="image")
+                button.grid(row=0, column=i % self.number_of_upgrades_per_row, sticky="ew", padx=5, pady=5)
                 self.upgrades_buttons.append(button)
-                i+=1
+                i += 1
 
         if nb_of_upgrades_to_show < nb_of_buttons:
             while i < nb_of_buttons:
                 self.upgrades_buttons[i].destroy()
                 self.upgrades_buttons.pop(i)
                 nb_of_buttons -= 1
-
-
 
         # entity update
         entities = Entities.get_entities()

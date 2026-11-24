@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from Cat_counter import CatCounter
 from Json_MGMT import JsonMGMT
-from style import COLORS, FONTS, new_window
+from Style import COLORS, FONTS, new_window
 
 
 class TicTacToe:

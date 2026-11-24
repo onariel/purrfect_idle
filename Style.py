@@ -22,7 +22,7 @@ def pick_font(root: tk.Tk, names: list, size: int, weight: str = 'normal') -> tu
     for name in names:
         if name in available:
             return name, size, weight
-    return 'Helvetica', size, weight
+    return 'Segoe UI', size, weight
 
 
 def setup_style(root: tk.Tk) -> None:

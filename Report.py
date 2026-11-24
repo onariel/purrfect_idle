@@ -1,9 +1,5 @@
 from pathlib import Path
 from matplotlib.backends.backend_pdf import PdfPages
-from matplotlib.figure import Figure
-from Cat_counter import CatCounter
-from Json_MGMT import JsonMGMT
-from minigames.minigames import Minigames
 from Graph import *
 import tkinter as tk
 import tkinter.messagebox
@@ -34,9 +30,10 @@ class Report:
         figure = Figure(figsize=A4)
         figure.suptitle("Purrfect Idle - Statistics", fontsize=16, weight="bold")
 
-        figure.text(0.1, 0.88, f"Total Cat Count: {self.cats.get_cats()}")
+        figure.text(0.1, 0.88, f"Current Cat Count: {self.cats.get_cats()}")
         figure.text(0.1, 0.85, f"Cat per Second: {self.cats.get_cats_per_second()}")
         figure.text(0.1, 0.82, f"Cat per Clicks: {self.cats.get_cats_per_click()}")
+        figure.text(0.1, 0.79, f"All Time Cats: {self.cats.get_total_cats()}")
 
         rows = []
         for entity_name, entity in self.save.data["entities"].items():
