@@ -1,16 +1,18 @@
 [
   {
-    "name": "metal rolling pin",
+    "name": "coco beans",
     "type": "%entity_modifier",
     "entity": "grandma",
+    "image_path" : "images/upgrades/coco_beans.png",
     "value": 20,
     "price": 1,
     "price_power_of_ten": 6
   },
   {
-    "name": "wood rolling pin",
+    "name": "rolling pin",
     "type": "%entity_modifier",
     "entity": "grandma",
+    "image_path":"images/upgrades/rolling_pin.png",
     "value": 20,
     "price": 10,
     "price_power_of_ten": 3
@@ -19,6 +21,7 @@
     "name": "milk",
     "type": "%global_modifier",
     "entity": "None",
+    "image_path": "images/upgrades/milk.png",
     "value": 5,
     "price": 1,
     "price_power_of_ten": 3

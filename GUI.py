@@ -230,17 +230,15 @@ class GUI:
         row += 1
 
         self.calculate_which_upgrades_to_show()
-
-        self.upgrades_frames = []
-        for j in range(self.number_of_rows_of_upgrades):
-            frame_upgrades_row = ttk.Frame(self.upgrade_column)
-            frame_upgrades_row.grid(row=row, column=0, pady=10, sticky="ew")
-
-            for i in range(self.number_of_upgrades_per_row):
-                frame = ttk.Frame(frame_upgrades_row, style="NotBuyable.TFrame", padding=2)
-                frame.grid(row=0, column=i, sticky="ew", pady=(0, 5))
-                self.upgrades_frames.append(frame)
+        self.upgrades_frame = []
+        self.upgrades_images = {}
+        for i in range(self.number_of_rows_of_upgrades):
+            frame  = ttk.Frame(self.upgrade_column, padding=2)
+            frame.grid(row=row, column=0, sticky="ew", pady=(0, 5))
             row += 1
+            self.upgrades_frame.append(frame)
+        self.upgrades_buttons = []
+
 
         entities_title_label = ttk.Label(self.upgrade_column, text="Entities")
         entities_title_label.grid(row=row, column=0, pady=10, sticky="ew")
@@ -287,34 +285,46 @@ class GUI:
 
         # upgrade update
         i = 0
-        for frame in self.upgrades_frames:
-            if i < len(self.upgrades_to_show):
-                is_buyable = "Buyable" if self.cats.is_upgrade_buyable(self.upgrades_to_show[i]) else "NotBuyable"
-
-                if frame.winfo_children():
-                    name_upgrade = frame.winfo_children()[0]
-                    name_upgrade.config(text=self.upgrades_to_show[i]["name"], style=f"{is_buyable}.TLabel")
-                else:
-                    name_upgrade = ttk.Label(frame, text=self.upgrades_to_show[i]["name"], anchor="w",
-                                             style=f"{is_buyable}.TLabel")
-                    name_upgrade.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
-                frame.config(style=f"{is_buyable}.TFrame")
-
-                frame.bind("<Button-1>",
-                           lambda event="oui", upgrade=self.upgrades_to_show[i],
-                                  is_buyable=is_buyable: self.on_upgrade_bought(event=event,
-                                                                                upgrade=upgrade, is_buyable=is_buyable))
-                name_upgrade.bind("<Button-1>",
-                                  lambda event="oui", upgrade=self.upgrades_to_show[i],
-                                         is_buyable=is_buyable: self.on_upgrade_bought(event=event,
-                                                                                       upgrade=upgrade,
-                                                                                       is_buyable=is_buyable))
+        nb_of_upgrades_to_show = len(self.upgrades_to_show)
+        nb_of_buttons = len(self.upgrades_buttons)
+        while i < nb_of_upgrades_to_show and i < nb_of_buttons:
+            button = self.upgrades_buttons[i]
+            upgrade = self.upgrades_to_show[i]
+            if upgrade["name"] not in self.upgrades_images:
+                image = ImageTk.PhotoImage(Image.open(f"{upgrade['image_path']}"))
+                self.upgrades_images[upgrade["name"]] = image
             else:
-                for child in frame.winfo_children():
-                    child.destroy()
-                frame.unbind("<Button-1>")
-
+                image = self.upgrades_images[upgrade["name"]]
+            is_buyable = "Buyable" if self.cats.is_upgrade_buyable(upgrade) else "NotBuyable"
+            if button.cget("text") != upgrade["name"]:
+                button.config( padding=2,
+                                    text=f"{upgrade["name"]}", command=lambda event="oui", upgrade=upgrade: self.on_upgrade_bought(
+                        event, upgrade), image=image, compound="image")
             i += 1
+
+        if nb_of_upgrades_to_show > nb_of_buttons:
+            while i < nb_of_upgrades_to_show:
+                upgrade = self.upgrades_to_show[i]
+                is_buyable = "Buyable" if self.cats.is_upgrade_buyable(upgrade) else "NotBuyable"
+                if upgrade["name"] not in self.upgrades_images:
+                    image = ImageTk.PhotoImage(Image.open(f"{upgrade['image_path']}"))
+                    self.upgrades_images[upgrade["name"]] = image
+                else:
+                    image = self.upgrades_images[upgrade["name"]]
+                button = ttk.Button(self.upgrades_frame[(i//self.number_of_upgrades_per_row)], padding=2,
+                                    text=f"{upgrade["name"]}", command=lambda event="oui", upgrade=upgrade,: self.on_upgrade_bought(
+                        event, upgrade), image=image, compound="image")
+                button.grid(row=0, column=i%self.number_of_upgrades_per_row, sticky="ew", padx=5, pady=5)
+                self.upgrades_buttons.append(button)
+                i+=1
+
+        if nb_of_upgrades_to_show < nb_of_buttons:
+            while i < nb_of_buttons:
+                self.upgrades_buttons[i].destroy()
+                self.upgrades_buttons.pop(i)
+                nb_of_buttons -= 1
+
+
 
         # entity update
         entities = Entities.get_entities()
@@ -339,19 +349,17 @@ class GUI:
 
         quantity_label.after(100, self.update_upgrade_column)
 
-
-    def on_upgrade_bought(self, event, upgrade: dict, is_buyable: str) -> None:
-        if is_buyable == "Buyable":
+    def on_upgrade_bought(self, event, upgrade: dict) -> None:
+        if self.cats.is_upgrade_buyable(upgrade):
             self.upgrades.remove(upgrade)
             self.upgrades_to_show.remove(upgrade)
             self.calculate_which_upgrades_to_show()
             self.cats.buy_upgrade(upgrade)
 
-
     def calculate_which_upgrades_to_show(self) -> None:
         self.upgrades_to_show = []
         if len(self.upgrades) > self.number_of_rows_of_upgrades * self.number_of_upgrades_per_row:
-            self.upgrades_to_show = self.upgrades[:self.number_of_rows_of_upgrades * self.number_of_upgrades_per_row].copy()
+            self.upgrades_to_show = self.upgrades[
+                :self.number_of_rows_of_upgrades * self.number_of_upgrades_per_row].copy()
         else:
             self.upgrades_to_show = self.upgrades.copy()
-
