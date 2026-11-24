@@ -11,7 +11,8 @@ from Graph import Graph
 from Statistics import Statistics
 from convert.convert import Convert
 from Report import Report
-from Style import setup_style
+from tkinter import font as tkfont
+from Style import setup_style, FONTS
 
 
 class GUI:
@@ -193,7 +194,7 @@ class GUI:
         graph_btn.grid(row=1, column=0, sticky="w", pady=10)
 
         save_btn = ttk.Button(frame, text="Manual Save", style="Accent.TButton", command=lambda: self.manual_save())
-        save_btn.grid(row=2, column=1, sticky="w")
+        save_btn.grid(row=2, column=1, pady=10, sticky="e")
 
         export_btn = ttk.Button(frame, text="Export", style="Accent.TButton", command=lambda: self.export_stats())
         export_btn.grid(row=1, column=1, pady=10, sticky="e")
@@ -230,6 +231,8 @@ class GUI:
         # One full-width row per entity, stacked from the top of the column
         self.upgrade_column.columnconfigure(0, weight=1)
         row = 0  # 3 rows are reserved for the upgrades and the title upgrade
+
+        # Upgrades
         self.number_of_rows_of_upgrades = 2
         self.number_of_upgrades_per_row = 4
         self.upgrades: list = Upgrades.get_upgrades(self.save)
@@ -247,33 +250,47 @@ class GUI:
             self.upgrades_frame.append(frame)
         self.upgrades_buttons = []
 
+        # Entities
         entities_title_label = ttk.Label(self.upgrade_column, text="Entities")
         entities_title_label.grid(row=row, column=0, pady=10, sticky="ew")
         entities = Entities.get_entities()
         self.entities_frame = {}
+        line_height = tkfont.Font(font=FONTS["normal"]).metrics("linespace")
+        entity_image_size = 2 * (line_height + 2 * 5) - 2 * 5  # 2 times (text line + 5 pady) - image pady
         for entity_name in entities:
             row += 1
             self.entities_frame[entity_name] = {}
             frame = ttk.Frame(self.upgrade_column, style="NotBuyable.TFrame", padding=2)
             frame.grid(row=row + 1, column=0, sticky="ew", pady=(0, 5))
-            frame.columnconfigure(0, weight=1)
+            frame.columnconfigure(1, weight=1)
             frame.bind("<Button-1>",
                        lambda event="oui", entity_name=entity_name: self.on_entity_bought(event=event,
                                                                                           entity_name=entity_name))
             self.entities_frame[entity_name]["frame"] = frame
 
+            image_entity = ImageTk.PhotoImage(
+                Image.open(f"{entities[entity_name]["image_path"]}.png").resize(
+                    (entity_image_size, entity_image_size), Image.NEAREST))
+            self.entities_frame[entity_name]["image"] = image_entity
+            image_label = ttk.Label(frame, image=image_entity, style="NotBuyable.TLabel")
+            image_label.bind("<Button-1>",
+                             lambda event="oui", entity_name=entity_name: self.on_entity_bought(
+                                 event=event, entity_name=entity_name))
+            image_label.grid(row=0, column=0, rowspan=2, sticky="w", padx=5, pady=5)
+            self.entities_frame[entity_name]["image_label"] = image_label
+
             name_entity = entities[entity_name]["name"]
             label_entity_name = ttk.Label(frame,
                                           text=name_entity[:15] + "..." if len(name_entity) > 15 else name_entity,
                                           anchor="w", style="NotBuyable.TLabel")
-            label_entity_name.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+            label_entity_name.grid(row=0, column=1, sticky="w", padx=5, pady=5)
             label_entity_name.bind("<Button-1>",
                                    lambda event="oui", entity_name=entity_name: self.on_entity_bought(
                                        event=event, entity_name=entity_name))
             self.entities_frame[entity_name]["name"] = label_entity_name
 
             label_entity_quantity = ttk.Label(frame, text="quantity", anchor="w", style="NotBuyable.TLabel")
-            label_entity_quantity.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+            label_entity_quantity.grid(row=1, column=1, sticky="w", padx=5, pady=5)
             label_entity_quantity.bind("<Button-1>",
                                        lambda event="oui", entity_name=entity_name: self.on_entity_bought(
                                            event=event, entity_name=entity_name))
@@ -281,7 +298,8 @@ class GUI:
 
             label_entity_price = ttk.Label(frame, text=str(entities[entity_name]["price"]) + " cats", anchor="w",
                                            style="NotBuyable.TLabel")
-            label_entity_price.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+            # Right edge of the frame, vertically centered on the two text rows
+            label_entity_price.grid(row=0, column=2, rowspan=2, sticky="e", padx=5, pady=5)
             label_entity_price.bind("<Button-1>",
                                     lambda event="oui", entity_name=entity_name: self.on_entity_bought(
                                         event=event, entity_name=entity_name))
@@ -300,14 +318,20 @@ class GUI:
             if upgrade["name"] not in self.upgrades_images:
                 image = ImageTk.PhotoImage(Image.open(f"{upgrade['image_path']}"))
                 self.upgrades_images[upgrade["name"]] = image
+                # Black and white version, shown while the upgrade cannot be bought
+                self.upgrades_images[upgrade["name"] + "NotBuyable"] = ImageTk.PhotoImage(
+                    Image.open(f"{upgrade['image_path']}").convert("RGBA").convert("LA").convert("RGBA"))
             else:
                 image = self.upgrades_images[upgrade["name"]]
             is_buyable = "Buyable" if self.cats.is_upgrade_buyable(upgrade) else "NotBuyable"
+            if is_buyable == "NotBuyable":
+                image = self.upgrades_images[upgrade["name"] + "NotBuyable"]
             if button.cget("text") != upgrade["name"]:
                 button.config(padding=2,
                               text=f"{upgrade["name"]}",
                               command=lambda event="oui", upgrade=upgrade: self.on_upgrade_bought(
                                   event, upgrade), image=image, compound="image")
+            button.config(image=image, style=is_buyable + ".TButton")
             i += 1
 
         if nb_of_upgrades_to_show > nb_of_buttons:
@@ -317,10 +341,15 @@ class GUI:
                 if upgrade["name"] not in self.upgrades_images:
                     image = ImageTk.PhotoImage(Image.open(f"{upgrade['image_path']}"))
                     self.upgrades_images[upgrade["name"]] = image
+                    # Black and white version, shown while the upgrade cannot be bought
+                    self.upgrades_images[upgrade["name"] + "NotBuyable"] = ImageTk.PhotoImage(
+                        Image.open(f"{upgrade['image_path']}").convert("RGBA").convert("LA").convert("RGBA"))
                 else:
                     image = self.upgrades_images[upgrade["name"]]
+                if is_buyable == "NotBuyable":
+                    image = self.upgrades_images[upgrade["name"] + "NotBuyable"]
                 button = ttk.Button(self.upgrades_frame[(i // self.number_of_upgrades_per_row)], padding=2,
-                                    text=f"{upgrade["name"]}",
+                                    text=f"{upgrade["name"]}", style=is_buyable + ".TButton",
                                     command=lambda event="oui", upgrade=upgrade,: self.on_upgrade_bought(
                                         event, upgrade), image=image, compound="image")
                 button.grid(row=0, column=i % self.number_of_upgrades_per_row, sticky="ew", padx=5, pady=5)
@@ -345,6 +374,8 @@ class GUI:
 
             name_label: ttk.Label = self.entities_frame[entity_key]["name"]
 
+            image_label: ttk.Label = self.entities_frame[entity_key]["image_label"]
+
             frame: ttk.Frame = self.entities_frame[entity_key]["frame"]
             is_buyable = self.cats.is_entity_buyable(entity_key)
             prefix = "Buyable" if is_buyable else "NotBuyable"
@@ -352,6 +383,7 @@ class GUI:
             quantity_label.config(style=prefix + ".TLabel")
             price_label.config(style=prefix + ".TLabel")
             name_label.config(style=prefix + ".TLabel")
+            image_label.config(style=prefix + ".TLabel")
             self.entities_frame[entity_key]["is_buyable"] = is_buyable
 
         quantity_label.after(100, self.update_upgrade_column)

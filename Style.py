@@ -10,6 +10,7 @@ COLORS: dict = {
     'text': '#1f2937', 'muted': '#6b7280',
     'buyable_text_bg': '#C8EACB', 'buyable_card_bg': '#C8EACB',
     'not_buyable_text_bg': '#ff9b9b', 'not_buyable_card_bg': '#ff9b9b',
+    'not_buyable_upgrade_bg': '#e5e5e5',
 }
 
 # Filled in by setup_style(), once the root window exists
@@ -65,6 +66,17 @@ def setup_style(root: tk.Tk) -> None:
     style.configure('NotBuyable.TFrame', background=COLORS['not_buyable_card_bg'], relief='solid',
                     borderwidth=1, bordercolor=COLORS['border'])
     style.configure('NotBuyable.TLabel', background=COLORS['not_buyable_text_bg'])
+
+    # upgrade buttons, colored when buyable and grey (with a black and white image) otherwise
+    style.configure('Buyable.TButton', background=COLORS['buyable_card_bg'], bordercolor=COLORS['border'],
+                    lightcolor=COLORS['buyable_card_bg'], darkcolor=COLORS['buyable_card_bg'])
+    style.map('Buyable.TButton', background=[('active', COLORS['accent'])],
+              lightcolor=[('active', COLORS['accent'])], darkcolor=[('active', COLORS['accent'])])
+    style.configure('NotBuyable.TButton', background=COLORS['not_buyable_upgrade_bg'], bordercolor=COLORS['border'],
+                    lightcolor=COLORS['not_buyable_upgrade_bg'], darkcolor=COLORS['not_buyable_upgrade_bg'])
+    style.map('NotBuyable.TButton', background=[('active', COLORS['not_buyable_upgrade_bg'])],
+              lightcolor=[('active', COLORS['not_buyable_upgrade_bg'])],
+              darkcolor=[('active', COLORS['not_buyable_upgrade_bg'])])
 
     # buttons
     style.configure('TButton', padding=(12, 6), background=COLORS['button'],

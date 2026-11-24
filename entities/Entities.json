@@ -1,6 +1,7 @@
 {
   "grandma":{
     "name": "Grandma",
+    "image_path": "images/entities/grandma",
     "cps": 5,
     "cps_power_of_ten": 0,
     "price": 100,
@@ -8,6 +9,7 @@
   },
   "cat-tree":{
     "name": "Cat Tree",
+    "image_path": "images/entities/cat-tree",
     "cps": 20,
     "cps_power_of_ten": 0,
     "price": 1,
@@ -15,6 +17,7 @@
   },
   "catnip":{
     "name": "Catnip",
+    "image_path": "images/entities/catnip",
     "cps": 50,
     "cps_power_of_ten": 0,
     "price": 10,
@@ -22,6 +25,7 @@
   },
   "ball-of-wool":{
     "name": "Ball of Wool",
+    "image_path": "images/entities/ball-of-wool",
     "cps": 100,
     "cps_power_of_ten": 0,
     "price": 100,
@@ -29,6 +33,7 @@
   },
   "cat-cafe":{
     "name": "Cat Café",
+    "image_path": "images/entities/cat-cafe",
     "cps": 200,
     "cps_power_of_ten": 0,
     "price": 1,
@@ -36,6 +41,7 @@
   },
   "cat-cloning-lab":{
     "name": "Cat Cloning Lab",
+    "image_path": "images/entities/cat-cloning-lab",
     "cps": 500,
     "cps_power_of_ten": 0,
     "price": 10,
@@ -43,6 +49,7 @@
   },
   "space-kitten":{
     "name": "Space Kitten",
+    "image_path": "images/entities/space-kitten",
     "cps": 1,
     "cps_power_of_ten": 3,
     "price": 100,
