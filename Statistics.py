@@ -139,7 +139,7 @@ class Statistics:
 
         self.all_time_cats_value.config(text=self.cats.get_total_cats())
 
-        self.nyancat_clicked_value.config(text=self.save.data["nyancat_clicked"])
+        self.nyancat_clicked_value.config(text=self.cats.get_nyancat_clicked())
 
         for entity_name, (label_quantity, label_cps) in self.entities_labels.items():
             entity = self.save.data["entities"][entity_name]

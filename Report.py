@@ -34,6 +34,7 @@ class Report:
         figure.text(0.1, 0.85, f"Cat per Second: {self.cats.get_cats_per_second()}")
         figure.text(0.1, 0.82, f"Cat per Clicks: {self.cats.get_cats_per_click()}")
         figure.text(0.1, 0.79, f"All Time Cats: {self.cats.get_total_cats()}")
+        figure.text(0.1, 0.76, f"Number of Nyan Cat clicked: {self.cats.get_nyancat_clicked()}")
 
         rows = []
         for entity_name, entity in self.save.data["entities"].items():

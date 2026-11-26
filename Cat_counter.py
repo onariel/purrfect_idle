@@ -20,6 +20,9 @@ class CatCounter:
     total_cats: float
     total_cats_power_of_ten: int
 
+    """Number of Nyan Cats the player managed to click"""
+    nyancat_clicked: int
+
     """
     The entities bought will be a dictionary that links an entity type to, amount of entities bought, price, flat cps, and modifier in %. Example:
     entities_bought = {
@@ -56,6 +59,8 @@ class CatCounter:
         self.total_cats = total["cats"]
         self.total_cats_power_of_ten = total["power_of_ten"]
 
+        self.nyancat_clicked = save.get("nyancat_clicked", 0)
+
         self.init_entities(save)
         self.global_modifier = save["global_modifier"]
 
@@ -84,6 +89,12 @@ class CatCounter:
 
     def get_total_cats(self) -> str:
         return Convert.convert(self.total_cats, self.total_cats_power_of_ten)
+
+    def get_nyancat_clicked(self) -> int:
+        return self.nyancat_clicked
+
+    def add_nyancat_clicked(self) -> None:
+        self.nyancat_clicked += 1
 
     def get_cats_per_second(self) -> str:
         return Convert.convert(self.cats_per_seconds, self.cats_per_seconds_power_of_ten)
@@ -245,6 +256,7 @@ class CatCounter:
             "cats_per_click.power_of_ten": self.cats_per_click_power_of_ten,
             "total_cats.cats": self.total_cats,
             "total_cats.power_of_ten": self.total_cats_power_of_ten,
+            "nyancat_clicked": self.nyancat_clicked,
             "upgrades": self.upgrades_bought,
             "global_modifier": self.global_modifier,
         }

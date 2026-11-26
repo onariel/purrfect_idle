@@ -36,6 +36,12 @@ class Nyancat:
         return ImageTk.PhotoImage(source)
 
     def spawn(self) -> None:
+        # The reward is based on cats per second, so it would be worth nothing without production:
+        # stay hidden and try again after the next cooldown
+        if self.cats.cats_per_seconds <= 0:
+            self.window.after(self.spawn_cooldown, self.spawn)
+            return
+
         # Make sure geometry is computed so winfo_width/height return the real window size
         self.window.update_idletasks()
         max_x = max(0, self.window.winfo_width() - self.cat_frame.winfo_reqwidth())
@@ -61,5 +67,5 @@ class Nyancat:
         reward_time = randint(15 * 60 * 1000, 30 * 60 * 1000)
         self.cats.update_cats(reward_time)
         # Written to disk by the next autosave
-        self.save.data["nyancat_clicked"] += 1
+        self.cats.add_nyancat_clicked()
         self.despawn()

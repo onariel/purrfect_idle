@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
+from random import randint
 from tkinter import ttk
 from PIL import Image, ImageTk
 from Cat_counter import CatCounter
@@ -89,7 +90,7 @@ class GUI:
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
         self.autosave()
 
-        Nyancat(self.cats, self.save, self.window, 60000)
+        Nyancat(self.cats, self.save, self.window, randint(40000, 80000))
 
         self.window.mainloop()
 
