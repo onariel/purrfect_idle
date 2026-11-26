@@ -92,6 +92,11 @@ class CatCounter:
         return self.entities_bought
 
     def add_entity(self, entity_name: str) -> None:
+
+        if self.power_of_ten - self.entities_bought[entity_name]["price_power_of_ten"] < self.rounded_to:
+            self.cats -= self.entities_bought[entity_name]["price"] * (
+                        10 ** (self.entities_bought[entity_name]["price_power_of_ten"] - self.power_of_ten))
+
         self.entities_bought[entity_name]["amount_bought"] += 1
         future_price = self.entities_bought[entity_name]["price"] * self.price_augmentation
         if future_price > 1000:
@@ -101,9 +106,7 @@ class CatCounter:
         self.entities_bought[entity_name]["price"] *= self.price_augmentation
         self.update_cats_per_second()
 
-        if self.power_of_ten - self.entities_bought[entity_name]["price_power_of_ten"] < self.rounded_to:
-            self.cats -= self.entities_bought[entity_name]["price"] * (
-                        10 ** (self.entities_bought[entity_name]["price_power_of_ten"] - self.power_of_ten))
+
 
     def is_entity_buyable(self, entity_name: str) -> bool:
         entity = self.entities_bought[entity_name]
@@ -222,7 +225,6 @@ class CatCounter:
         return False
 
     def buy_upgrade(self, upgrade: dict) -> None:
-        print(upgrade["type"], upgrade["value"])
         if upgrade["type"] == "%entity_modifier":
             self.entities_bought[upgrade["entity"]]["modifier_cps"] += upgrade["value"]
         elif upgrade["type"] == "%global_modifier":
