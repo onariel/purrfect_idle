@@ -6,7 +6,11 @@ from minigames.minigames import Minigames
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from Style import COLORS, new_window
+from convert.convert import Convert
 import datetime as dt
+
+SOURCE_LABELS = {"click": "Clicks", "idle": "Idle", "nyancat": "Nyan Cat", "minigames": "Minigames"}
+SOURCE_COLORS = ["#5c6bc0", "#26a69a", "#ec407a", "#ffa726"]
 
 
 def draw_minigame_pie(axes, values: list) -> None:
@@ -49,6 +53,29 @@ def draw_all_time_cats(axes, timestamps: list, cats: list) -> None:
         label.set_horizontalalignment("right")
 
 
+def draw_cats_sources(axes, sources: dict) -> None:
+    """Draw the share of cats earned per source on the given axes (shared with Report)"""
+    names = [SOURCE_LABELS[key] for key in sources]
+    values = [bucket["cats"] * 10 ** bucket["power_of_ten"] for bucket in sources.values()]
+    total = sum(values)
+    shares = [value / total * 100 for value in values]
+
+    # Horizontal bars instead of a pie: idle usually dwarfs the rest, small slices would be invisible
+    bars = axes.barh(names, shares, color=SOURCE_COLORS[:len(names)])
+    axes.invert_yaxis()  # first source on top
+    # Extra room on the right so the label of a bar close to 100% stays visible
+    axes.set_xlim(0, 135)
+    axes.set_xticks(range(0, 101, 20))
+    axes.set_xlabel("% of all cats earned")
+    axes.grid(True, axis="x", color=COLORS['line'])
+    axes.set_axisbelow(True)
+
+    # "12.3% (4.5 Million)" next to each bar
+    labels = [f"{share:.1f}% ({Convert.convert(bucket['cats'], bucket['power_of_ten']).strip()})"
+              for share, bucket in zip(shares, sources.values())]
+    axes.bar_label(bars, labels, padding=4, fontsize=9)
+
+
 class Graph:
 
     def __init__(self, window: tk.Tk, cats: CatCounter, save: JsonMGMT) -> None:
@@ -67,15 +94,18 @@ class Graph:
 
         self.minigames_ratio = ttk.Frame(self.page)
         self.all_time_cats = ttk.Frame(self.page)
+        self.cat_sources = ttk.Frame(self.page)
 
         self.init_notebook()
 
     def init_notebook(self) -> None:
         self.page.add(self.all_time_cats, text="All time cats")
+        self.page.add(self.cat_sources, text="Cat sources")
         self.page.add(self.minigames_ratio, text="Minigames Ratio")
 
         self.init_minigames_ratio()
         self.init_all_time_cats()
+        self.init_cat_sources()
 
     def init_all_time_cats(self) -> None:
         self.all_time_cats.columnconfigure(0, weight=1)
@@ -155,3 +185,32 @@ class Graph:
         # Keep the chart square: its height follows the width of the column
         widget.bind("<Configure>", lambda event: widget.configure(height=event.width)
         if event.height != event.width else None, add="+")
+
+    def init_cat_sources(self) -> None:
+        self.cat_sources.columnconfigure(0, weight=1)
+        self.cat_sources.rowconfigure(1, weight=1)
+
+        title_frame = ttk.Frame(self.cat_sources)
+        title_frame.grid(row=0, column=0, sticky="nsew", padx=10)
+
+        title_label = ttk.Label(title_frame, text="Cat sources", style="Title.TLabel")
+        title_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+        subtitle_label = ttk.Label(title_frame, text="Where your cats come from.", style="Subtitle.TLabel")
+        subtitle_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+
+        # Read the live counter: the save only gets these values on the next autosave
+        sources = self.cats.cats_sources
+
+        if sum(bucket["cats"] for bucket in sources.values()) == 0:
+            no_data = ttk.Label(self.cat_sources, text="No cats earned yet, keep playing!", style="Muted.TLabel")
+            no_data.grid(row=1, column=0, padx=10, pady=10)
+            return
+
+        figure = Figure(figsize=(6, 3), layout="constrained", facecolor=COLORS['card'])
+        axes = figure.add_subplot()
+        draw_cats_sources(axes, sources)
+
+        canvas = FigureCanvasTkAgg(figure, master=self.cat_sources)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=10, pady=10)

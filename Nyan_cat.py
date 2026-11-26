@@ -65,7 +65,7 @@ class Nyancat:
     def nyan_on_click(self) -> None:
         # Reward = between 15 and 30 minutes of production (update_cats takes milliseconds)
         reward_time = randint(15 * 60 * 1000, 30 * 60 * 1000)
-        self.cats.update_cats(reward_time)
+        self.cats.update_cats(reward_time, "nyancat")
         # Written to disk by the next autosave
         self.cats.add_nyancat_clicked()
         self.despawn()

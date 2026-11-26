@@ -190,7 +190,7 @@ class TicTacToe:
         if seconds == 0:
             return "0"
 
-        return self.cats.update_cats(seconds * 1000)
+        return self.cats.update_cats(seconds * 1000, "minigames")
 
     def show_result(self, message: str, seconds: int) -> None:
         cats_gained = self.reward(seconds)

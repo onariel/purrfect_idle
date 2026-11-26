@@ -23,6 +23,9 @@ class CatCounter:
     """Number of Nyan Cats the player managed to click"""
     nyancat_clicked: int
 
+    """Cats earned per source (click, idle, nyancat, minigames), each stored as {"cats": ..., "power_of_ten": ...}"""
+    cats_sources: dict
+
     """
     The entities bought will be a dictionary that links an entity type to, amount of entities bought, price, flat cps, and modifier in %. Example:
     entities_bought = {
@@ -54,12 +57,12 @@ class CatCounter:
         self.cats_per_click = save["cats_per_click"]["cats"]
         self.cats_per_click_power_of_ten = save["cats_per_click"]["power_of_ten"]
 
-        # Older saves don't have the total yet, so it starts from the current cats
-        total = save.setdefault("total_cats", {"cats": self.cats, "power_of_ten": self.power_of_ten})
-        self.total_cats = total["cats"]
-        self.total_cats_power_of_ten = total["power_of_ten"]
+        self.total_cats = save["total_cats"]["cats"]
+        self.total_cats_power_of_ten = save["total_cats"]["power_of_ten"]
 
-        self.nyancat_clicked = save.get("nyancat_clicked", 0)
+        self.nyancat_clicked = save["nyancat_clicked"]
+
+        self.cats_sources = save["cats_sources"]
 
         self.init_entities(save)
         self.global_modifier = save["global_modifier"]
@@ -128,8 +131,8 @@ class CatCounter:
                 return True
         return False
 
-    def add_to_total_cats(self, amount: float, amount_power_of_ten: int) -> None:
-        """Count earned cats in the all time total, which never goes down"""
+    def add_to_total_cats(self, amount: float, amount_power_of_ten: int, source: str) -> None:
+        """Count earned cats in the all time total, which never goes down, and in the total of their source"""
         if self.total_cats_power_of_ten - amount_power_of_ten < self.rounded_to:
             self.total_cats += round(amount * 10 ** (amount_power_of_ten - self.total_cats_power_of_ten),
                                      self.rounded_to)
@@ -138,13 +141,26 @@ class CatCounter:
             self.total_cats = round(self.total_cats / 1000, self.rounded_to)
             self.total_cats_power_of_ten += 3
 
-    def update_cats(self, time: int) -> str:
+        self.add_to_source(source, amount, amount_power_of_ten)
+
+    def add_to_source(self, source: str, amount: float, amount_power_of_ten: int) -> None:
+        """Count earned cats in the total of the source they come from"""
+        bucket = self.cats_sources[source]
+        if bucket["power_of_ten"] - amount_power_of_ten < self.rounded_to:
+            bucket["cats"] += round(amount * 10 ** (amount_power_of_ten - bucket["power_of_ten"]),
+                                    self.rounded_to)
+
+        while bucket["cats"] >= 1000:
+            bucket["cats"] = round(bucket["cats"] / 1000, self.rounded_to)
+            bucket["power_of_ten"] += 3
+
+    def update_cats(self, time: int, source: str = "idle") -> str:
         # This formula calculates the number of cats made in a certain time. First you calculate the number of cats that a second of
         # cat per second will give if you remove the power of tens. Then you have to transform the time given in seconds and multiply the two
         self.cats += round(
             (self.cats_per_seconds / (10 ** (self.power_of_ten - self.cats_per_seconds_power_of_ten))) * (time / 1000),
             self.rounded_to)
-        self.add_to_total_cats(self.cats_per_seconds * (time / 1000), self.cats_per_seconds_power_of_ten)
+        self.add_to_total_cats(self.cats_per_seconds * (time / 1000), self.cats_per_seconds_power_of_ten, source)
 
         if self.cats > 1000:
             self.cats = round(self.cats / 1000, self.rounded_to)
@@ -207,9 +223,9 @@ class CatCounter:
     def get_cats_per_click(self) -> str:
         return Convert.convert(self.cats_per_click, self.cats_per_click_power_of_ten)
 
-    def add_cats(self, nb_cats: tuple) -> None:
+    def add_cats(self, nb_cats: tuple, source: str) -> None:
         self.cats += round(nb_cats[0] * (10 ** (nb_cats[1] - self.power_of_ten)), self.rounded_to)
-        self.add_to_total_cats(nb_cats[0], nb_cats[1])
+        self.add_to_total_cats(nb_cats[0], nb_cats[1], source)
 
         while self.cats / 1000 >= 1:
             self.cats = round(self.cats / 1000, self.rounded_to)
@@ -225,7 +241,7 @@ class CatCounter:
     def click(self) -> None:
         self.cats += round(self.cats_per_click * (10 ** (self.cats_per_click_power_of_ten - self.power_of_ten)),
                            self.rounded_to)
-        self.add_to_total_cats(self.cats_per_click, self.cats_per_click_power_of_ten)
+        self.add_to_total_cats(self.cats_per_click, self.cats_per_click_power_of_ten, "click")
 
     def is_upgrade_buyable(self, upgrade: dict) -> bool:
         if self.power_of_ten > upgrade["price_power_of_ten"]:
@@ -245,6 +261,7 @@ class CatCounter:
         if self.power_of_ten - upgrade["price_power_of_ten"] < self.rounded_to:
             self.cats -= upgrade["price"] * (
                         10 ** (upgrade["price_power_of_ten"] - self.power_of_ten))
+        self.update_cats_per_second()
 
     def save_cats_info(self) -> dict:
         return {
@@ -257,6 +274,7 @@ class CatCounter:
             "total_cats.cats": self.total_cats,
             "total_cats.power_of_ten": self.total_cats_power_of_ten,
             "nyancat_clicked": self.nyancat_clicked,
+            "cats_sources": self.cats_sources,
             "upgrades": self.upgrades_bought,
             "global_modifier": self.global_modifier,
         }

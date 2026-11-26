@@ -22,6 +22,12 @@ class JsonMGMT:
             "power_of_ten": 0
         },
         "nyancat_clicked": 0,
+        "cats_sources": {
+            "click": {"cats": 0, "power_of_ten": 0},
+            "idle": {"cats": 0, "power_of_ten": 0},
+            "nyancat": {"cats": 0, "power_of_ten": 0},
+            "minigames": {"cats": 0, "power_of_ten": 0}
+        },
         "upgrades": [],
         "entities": {},
         "minigames": {
@@ -45,11 +51,7 @@ class JsonMGMT:
     def load_or_create(self):
         if self.SAVE_PATH.exists():
             with open(self.SAVE_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            # Older saves miss the keys added since: fill them with their default value
-            for key, default in self.DEFAULT_DATA.items():
-                data.setdefault(key, copy.deepcopy(default))
-            return data
+                return json.load(f)
 
         data = copy.deepcopy(self.DEFAULT_DATA)
         self.save(data)
@@ -79,10 +81,7 @@ class JsonMGMT:
             self.save()
 
     def add_all_time_cats(self, cats: float, power_of_ten: int, save: bool = True) -> None:
-        history = self.data.setdefault("all_time_cats", [])
-        if not isinstance(history, list):  # old saves stored a dict
-            history = self.data["all_time_cats"] = []
-
+        history = self.data["all_time_cats"]
         history.append({
             "timestamp": dt.datetime.now().strftime(self.TIMESTAMP_FORMAT),
             "cats": cats,

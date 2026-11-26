@@ -21,6 +21,7 @@ class Report:
             with PdfPages(self.REPORT_PATH) as pdf:
                 pdf.savefig(self.statistics_page())
                 pdf.savefig(self.all_time_cats_page())
+                pdf.savefig(self.cats_sources_page())
                 pdf.savefig(self.minigames_page())
             tk.messagebox.showinfo("Report Export.", "Report exported successfully!")
         except Exception as e:
@@ -61,6 +62,21 @@ class Report:
             axes.text(0.5, 0.5, "Not enough data yet, keep playing!", ha="center")
             return figure
         draw_all_time_cats(axes, timestamps, cats)
+
+        return figure
+
+    def cats_sources_page(self) -> Figure:
+        figure = Figure(figsize=A4)
+        figure.suptitle("Cat sources", fontsize=16, weight="bold")
+
+        sources = self.cats.cats_sources
+
+        axes = figure.add_axes((0.2, 0.6, 0.7, 0.25))
+        if sum(bucket["cats"] for bucket in sources.values()) == 0:
+            axes.axis("off")
+            axes.text(0.5, 0.5, "No cats earned yet, keep playing!", ha="center")
+            return figure
+        draw_cats_sources(axes, sources)
 
         return figure
 
