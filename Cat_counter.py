@@ -229,6 +229,9 @@ class CatCounter:
             self.global_modifier += upgrade["value"]
 
         self.upgrades_bought.append(upgrade["name"])
+        if self.power_of_ten - upgrade["price_power_of_ten"] < self.rounded_to:
+            self.cats -= upgrade["price"] * (
+                        10 ** (upgrade["price_power_of_ten"] - self.power_of_ten))
 
     def save_cats_info(self) -> dict:
         return {
