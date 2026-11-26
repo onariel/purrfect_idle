@@ -35,6 +35,11 @@ class JsonMGMT:
                 "win": 0,
                 "tie": 0,
                 "lose": 0
+            },
+            "minesweeper": {
+                "win": 0,
+                "tie": 0,
+                "lose": 0
             }
         },
         "global_modifier": 0,

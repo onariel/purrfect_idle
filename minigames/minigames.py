@@ -1,4 +1,5 @@
 from minigames.tic_tac_toe import TicTacToe
+from minigames.mine_sweeper import Minesweeper
 import tkinter as tk
 from tkinter import ttk
 from Cat_counter import CatCounter
@@ -10,7 +11,7 @@ class Minigames:
     cards: dict
 
     def __init__(self) -> None:
-        self.minigames = [TicTacToe]
+        self.minigames = [TicTacToe, Minesweeper]
         self.cards = {}
         self.temp_label = None
 

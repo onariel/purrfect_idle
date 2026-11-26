@@ -13,6 +13,7 @@ class TicTacToe:
 
     WIN_REWARD_SECONDS = 60
     TIE_REWARD_SECONDS = 20
+    LOSE_REWARD_SECONDS = 10
     CLICKS_PER_SECOND_REWARD = 1
 
     PLAYER = "X"
@@ -148,11 +149,11 @@ class TicTacToe:
             self.save.update(self.save_result_info("w", self.win_amount))
         elif winner == self.COMPUTER:
             self.lose_amount += 1
-            self.show_result("You lose ...", self.WIN_REWARD_SECONDS)
+            self.show_result("You lose ...", self.LOSE_REWARD_SECONDS)
             self.save.update(self.save_result_info("l", self.lose_amount))
         else:
             self.tie_amount += 1
-            self.show_result("It's a tie.", self.WIN_REWARD_SECONDS)
+            self.show_result("It's a tie.", self.TIE_REWARD_SECONDS)
             self.save.update(self.save_result_info("t", self.tie_amount))
         return True
 
