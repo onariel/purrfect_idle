@@ -13,6 +13,7 @@ from convert.convert import Convert
 from Report import Report
 from tkinter import font as tkfont
 from Style import setup_style, FONTS
+from Nyan_cat import Nyancat
 
 
 class GUI:
@@ -87,6 +88,8 @@ class GUI:
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
         self.autosave()
+
+        Nyancat(self.cats, self.save, self.window, 60000)
 
         self.window.mainloop()
 
