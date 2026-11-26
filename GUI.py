@@ -15,6 +15,7 @@ from Report import Report
 from tkinter import font as tkfont
 from Style import setup_style, FONTS
 from Nyan_cat import Nyancat
+from Tooltip import Tooltip
 
 
 class GUI:
@@ -82,6 +83,9 @@ class GUI:
         self.cat_image_width = 0
         self.cat_pulse_frames = []
         self.cat_pulse_job = None
+
+        # Created before the upgrade column, its buttons use it
+        self.tooltip = Tooltip(self.window)
 
         self.init_upgrade_column()
         self.init_main_column()
@@ -253,6 +257,8 @@ class GUI:
             row += 1
             self.upgrades_frame.append(frame)
         self.upgrades_buttons = []
+        # Upgrades per row follow the column width, the buttons are rebuilt in update_upgrade_column()
+        self.upgrade_column.bind("<Configure>", lambda event: self.on_upgrade_column_resize(event.width))
 
         # Entities
         entities_title_label = ttk.Label(self.upgrade_column, text="Entities")
@@ -335,6 +341,7 @@ class GUI:
                               text=f"{upgrade["name"]}",
                               command=lambda event="oui", upgrade=upgrade: self.on_upgrade_bought(
                                   event, upgrade), image=image, compound="image")
+                self.tooltip.bind_widget(button, balloonmsg=self.get_upgrade_tooltip(upgrade))
             button.config(image=image, style=is_buyable + ".TButton")
             i += 1
 
@@ -357,6 +364,7 @@ class GUI:
                                     command=lambda event="oui", upgrade=upgrade,: self.on_upgrade_bought(
                                         event, upgrade), image=image, compound="image")
                 button.grid(row=0, column=i % self.number_of_upgrades_per_row, sticky="ew", padx=5, pady=5)
+                self.tooltip.bind_widget(button, balloonmsg=self.get_upgrade_tooltip(upgrade))
                 self.upgrades_buttons.append(button)
                 i += 1
 
@@ -398,6 +406,28 @@ class GUI:
             self.upgrades_to_show.remove(upgrade)
             self.calculate_which_upgrades_to_show()
             self.cats.buy_upgrade(upgrade)
+
+    def get_upgrade_tooltip(self, upgrade: dict) -> str:
+        price = Convert.convert(upgrade["price"], upgrade["price_power_of_ten"])
+        return f"{upgrade['name']}\nPrice: {price} cats"
+
+    def on_upgrade_column_resize(self, column_width: int) -> None:
+        # Width of one upgrade: button requested width (48px image + padding + border) + padx on both sides
+        if self.upgrades_buttons:
+            upgrade_width = self.upgrades_buttons[0].winfo_reqwidth() + 2 * 5
+        else:
+            upgrade_width = 48 + 2 * 2 + 2 * 5
+        # Row frame padding on both sides
+        upgrades_per_row = max(1, (column_width - 2 * 2) // upgrade_width)
+        # <Configure> fires many times while resizing, only rebuild when the layout really changes
+        if upgrades_per_row == self.number_of_upgrades_per_row:
+            return
+        self.number_of_upgrades_per_row = upgrades_per_row
+        # A button cannot change of row frame, so they are destroyed and recreated in the right one
+        for button in self.upgrades_buttons:
+            button.destroy()
+        self.upgrades_buttons = []
+        self.calculate_which_upgrades_to_show()
 
     def calculate_which_upgrades_to_show(self) -> None:
         self.upgrades_to_show = []

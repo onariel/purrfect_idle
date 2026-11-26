@@ -1,6 +1,6 @@
 [
   {
-    "name": "coco beans",
+    "name": "Coco Beans",
     "type": "%entity_modifier",
     "entity": "grandma",
     "image_path" : "images/upgrades/coco_beans.png",
@@ -9,7 +9,7 @@
     "price_power_of_ten": 6
   },
   {
-    "name": "rolling pin",
+    "name": "Rolling Pin",
     "type": "%entity_modifier",
     "entity": "grandma",
     "image_path":"images/upgrades/rolling_pin.png",
@@ -18,12 +18,129 @@
     "price_power_of_ten": 3
   },
   {
-    "name": "milk",
+    "name": "Milk",
     "type": "%global_modifier",
     "entity": "None",
     "image_path": "images/upgrades/milk.png",
     "value": 5,
     "price": 1,
     "price_power_of_ten": 3
+  },
+  {
+    "name": "Laser Pointer",
+    "type": "%global_modifier",
+    "entity": "None",
+    "image_path": "images/upgrades/laser_pointer.png",
+    "value": 10,
+    "price": 1,
+    "price_power_of_ten": 6
+  },
+  {
+    "name": "Fertilizer",
+    "type": "%entity_modifier",
+    "entity": "catnip",
+    "image_path":"images/upgrades/fertilizer.png",
+    "value": 25,
+    "price": 1,
+    "price_power_of_ten": 6
+  },
+  {
+    "name": "Greenhouse",
+    "type": "%entity_modifier",
+    "entity": "catnip",
+    "image_path":"images/upgrades/greenhouse.png",
+    "value": 50,
+    "price": 100,
+    "price_power_of_ten": 6
+  },
+  {
+    "name": "Rope",
+    "type": "%entity_modifier",
+    "entity": "cat-tree",
+    "image_path":"images/upgrades/rope.png",
+    "value": 25,
+    "price": 100,
+    "price_power_of_ten": 3
+  },
+  {
+    "name": "Platform",
+    "type": "%entity_modifier",
+    "entity": "cat-tree",
+    "image_path":"images/upgrades/platform.png",
+    "value": 50,
+    "price": 10,
+    "price_power_of_ten": 6
+  },
+  {
+    "name": "Merino Wool",
+    "type": "%entity_modifier",
+    "entity": "ball-of-wool",
+    "image_path":"images/upgrades/merino_wool.png",
+    "value": 25,
+    "price": 10,
+    "price_power_of_ten": 6
+  },
+  {
+    "name": "Tangled Yarn",
+    "type": "%entity_modifier",
+    "entity": "ball-of-wool",
+    "image_path":"images/upgrades/tangled_yarn.png",
+    "value": 50,
+    "price": 1,
+    "price_power_of_ten": 9
+  },
+  {
+    "name": "Tuna Cookie",
+    "type": "%entity_modifier",
+    "entity": "cat-cafe",
+    "image_path":"images/upgrades/tuna_cookie.png",
+    "value": 25,
+    "price": 100,
+    "price_power_of_ten": 6
+  },
+  {
+    "name": "Ichor Syrup",
+    "type": "%entity_modifier",
+    "entity": "cat-cafe",
+    "image_path":"images/upgrades/ichor_syrup.png",
+    "value": 50,
+    "price": 10,
+    "price_power_of_ten": 9
+  },
+  {
+    "name": "Amalgam",
+    "type": "%entity_modifier",
+    "entity": "cat-cloning-lab",
+    "image_path":"images/upgrades/amalgam.png",
+    "value": 25,
+    "price": 1,
+    "price_power_of_ten": 9
+  },
+  {
+    "name": "Mitosis",
+    "type": "%entity_modifier",
+    "entity": "cat-cloning-lab",
+    "image_path":"images/upgrades/mitosis.png",
+    "value": 50,
+    "price": 100,
+    "price_power_of_ten": 9
+  },
+  {
+    "name": "Spaceship",
+    "type": "%entity_modifier",
+    "entity": "space-kitten",
+    "image_path":"images/upgrades/spaceship.png",
+    "value": 25,
+    "price": 10,
+    "price_power_of_ten": 9
+  },
+  {
+    "name": "Stars",
+    "type": "%entity_modifier",
+    "entity": "space-kitten",
+    "image_path":"images/upgrades/stars.png",
+    "value": 50,
+    "price": 1,
+    "price_power_of_ten": 12
   }
 ]
