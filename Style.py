@@ -98,6 +98,19 @@ def setup_style(root: tk.Tk) -> None:
               darkcolor=[('pressed', COLORS['card']), ('active', COLORS['card'])],
               relief=[('pressed', 'flat')])
 
+    # nyancat bonus: floats above the app, no border so only the sprite shows, lilac glow on hover / click
+    style.configure('Nyan.TFrame', background=COLORS['bg'])
+    style.configure('Nyan.TButton', padding=4, relief='flat', borderwidth=0,
+                    background=COLORS['bg'], bordercolor=COLORS['bg'], focuscolor=COLORS['bg'],
+                    lightcolor=COLORS['bg'], darkcolor=COLORS['bg'])
+    style.map('Nyan.TButton',
+              background=[('pressed', COLORS['accent_dark']), ('active', COLORS['highlight'])],
+              bordercolor=[('pressed', COLORS['accent_dark']), ('active', COLORS['highlight'])],
+              lightcolor=[('pressed', COLORS['accent_dark']), ('active', COLORS['highlight'])],
+              darkcolor=[('pressed', COLORS['accent_dark']), ('active', COLORS['highlight'])],
+              focuscolor=[('pressed', COLORS['accent_dark']), ('active', COLORS['highlight'])],
+              relief=[('pressed', 'flat')])
+
     # notebook tabs
     style.configure('TNotebook', background=COLORS['bg'], bordercolor=COLORS['line'])
     style.configure('TNotebook.Tab', background=COLORS['tab'], padding=(14, 6), bordercolor=COLORS['line'])

@@ -20,9 +20,9 @@ class Nyancat:
 
         # Built once, then only shown / hidden
         self.nyancat_image = self.get_nyancat_image()
-        self.cat_frame = ttk.Frame(self.window)
-        self.cat_button = ttk.Button(self.cat_frame, image=self.nyancat_image,
-                                     compound="image", command=self.nyan_on_click)
+        self.cat_frame = ttk.Frame(self.window, style="Nyan.TFrame")
+        self.cat_button = ttk.Button(self.cat_frame, image=self.nyancat_image, style="Nyan.TButton",
+                                     compound="image", cursor="hand2", command=self.nyan_on_click)
         self.cat_button.grid(row=0, column=0)
 
         # Start hidden, first appearance after the cooldown
