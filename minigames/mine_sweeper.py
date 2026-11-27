@@ -28,10 +28,11 @@ class Minesweeper:
         self.level_frame = tk.Frame(root)
         self.level_frame.pack(pady=10)
 
+        self.nb_won = max(0, save.data["minigames"]["minesweeper"]["win"])
+        self.nb_lost = max(0, save.data["minigames"]["minesweeper"]["lose"])
+
         tk.Label(self.level_frame, text="Select Level: ", font=("Helvetica", 12)).pack(side=tk.LEFT)
-        for level in ["Easy", "Medium", "Hard"]:
-            btn = tk.Button(self.level_frame, text=level, command=lambda lvl=level: self.start_game(lvl))
-            btn.pack(side=tk.LEFT, padx=5)
+        self.start_game("Easy")
 
     def start_game(self, level):
         self.level = level
@@ -160,13 +161,12 @@ class Minesweeper:
             if cell["mine"] and not cell["revealed"]:
                 cell["btn"].config(text="💣")
         if win:
-            if self.level == "Easy":
-                self.show_result(msg, self.EASY_REWARD_SECONDS)
-            if self.level == "Medium":
-                self.show_result(msg, self.MEDIUM_REWARD_SECONDS)
-            if self.level == "Hard":
-                self.show_result(msg, self.HARD_REWARD_SECONDS)
+            self.nb_won += 1
+            self.save.update({"minigames.minesweeper.win" : self.nb_won})
+            self.show_result(msg, self.EASY_REWARD_SECONDS)
         else:
+            self.nb_lost += 1
+            self.save.update({"minigames.minesweeper.lose" : self.nb_lost})
             self.show_result(msg,0)
 
     def show_result(self, message: str, seconds: int) -> None:
