@@ -13,18 +13,29 @@ SOURCE_LABELS = {"click": "Clicks", "idle": "Idle", "nyancat": "Nyan Cat", "mini
 SOURCE_COLORS = ["#5c6bc0", "#26a69a", "#ec407a", "#ffa726"]
 
 
-def draw_minigame_pie(axes, values: list) -> None:
-    """Draw the win/tie/lose pie and its legend on the given axes (shared with Report)"""
-    pie = axes.pie(values, colors=["#4caf50", "#9e9e9e", "#e53935"])
+def draw_minigame_pie(axes, stats: dict, has_tie: bool) -> None:
+    """Draw the win/(tie)/lose pie and its legend on the given axes (shared with Report)"""
+    values = [stats["win"]]
+    colors = ["#4caf50"]
+    names = ["Wins"]
+    if has_tie:
+        values.append(stats["tie"])
+        colors.append("#9e9e9e")
+        names.append("Ties")
+    values.append(stats["lose"])
+    colors.append("#e53935")
+    names.append("Loses")
+
+    pie = axes.pie(values, colors=colors)
 
     labels = [f"{value}" if value else "" for value in values]
     axes.pie_label(pie, labels, textprops=dict(color="w", size=10, weight="bold"))
 
     # Legend attached to the axes (not the figure) so each pie keeps its own legend
-    axes.legend(pie.wedges, ["Wins", "Ties", "Loses"],
+    axes.legend(pie.wedges, names,
                 loc="upper center",
                 bbox_to_anchor=(0.5, 0),
-                ncol=3,
+                ncol=len(names),
                 fontsize=8,
                 handlelength=1,
                 columnspacing=0.8,
@@ -163,7 +174,9 @@ class Graph:
         game_name = ttk.Label(cell, text=minigame.NAME, style="CardTitle.TLabel")
         game_name.grid(row=0, column=0, columnspan=2, padx=10)
 
-        values = [stats["win"], stats["tie"], stats["lose"]]
+        values = [stats["win"], stats["lose"]]
+        if minigame.HAS_TIE:
+            values.append(stats["tie"])
 
         if sum(values) == 0:
             no_data = ttk.Label(cell, text="No games played yet", style="Muted.Card.TLabel")
@@ -174,7 +187,7 @@ class Graph:
 
         figure = Figure(figsize=(2, 2), layout="constrained", facecolor=COLORS['card'])
         axes = figure.add_subplot()
-        draw_minigame_pie(axes, values)
+        draw_minigame_pie(axes, stats, minigame.HAS_TIE)
 
         canvas = FigureCanvasTkAgg(figure, master=cell)
         canvas.draw()

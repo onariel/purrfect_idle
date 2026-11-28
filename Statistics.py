@@ -112,17 +112,22 @@ class Statistics:
 
         win_label = ttk.Label(cell, text="Wins: ", style="Card.TLabel")
         win_label.grid(row=1, column=0, sticky="w")
-        tie_label = ttk.Label(cell, text="Ties: ", style="Card.TLabel")
-        tie_label.grid(row=2, column=0, sticky="w")
-        lose_label = ttk.Label(cell, text="Loses: ", style="Card.TLabel")
-        lose_label.grid(row=3, column=0, sticky="w")
-
         win_score = ttk.Label(cell, style="Card.TLabel")
         win_score.grid(row=1, column=1)
-        tie_score = ttk.Label(cell, style="Card.TLabel")
-        tie_score.grid(row=2, column=1)
+
+        # Only games where a tie is possible get a tie row
+        tie_score = None
+        if minigame.HAS_TIE:
+            tie_label = ttk.Label(cell, text="Ties: ", style="Card.TLabel")
+            tie_label.grid(row=2, column=0, sticky="w")
+            tie_score = ttk.Label(cell, style="Card.TLabel")
+            tie_score.grid(row=2, column=1)
+
+        lose_row = 3 if minigame.HAS_TIE else 2
+        lose_label = ttk.Label(cell, text="Loses: ", style="Card.TLabel")
+        lose_label.grid(row=lose_row, column=0, sticky="w")
         lose_score = ttk.Label(cell, style="Card.TLabel")
-        lose_score.grid(row=3, column=1)
+        lose_score.grid(row=lose_row, column=1)
 
         self.minigames_labels[key] = (win_score, tie_score, lose_score)
 
@@ -149,7 +154,8 @@ class Statistics:
         for key, (win_score, tie_score, lose_score) in self.minigames_labels.items():
             stats = self.save.data["minigames"][key]
             win_score.config(text=stats["win"])
-            tie_score.config(text=stats["tie"])
+            if tie_score is not None:
+                tie_score.config(text=stats["tie"])
             lose_score.config(text=stats["lose"])
 
         self.parent.after(500, self.update_stats)

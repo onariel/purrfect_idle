@@ -9,6 +9,7 @@ from Style import COLORS, FONTS, new_window
 class Minesweeper:
     PARENT_ENTITY = "cat-tree"
     NAME = 'Minesweeper'
+    HAS_TIE = False
 
     HARD_REWARD_SECONDS = 240
     MEDIUM_REWARD_SECONDS = 120
@@ -31,7 +32,6 @@ class Minesweeper:
         self.nb_won = max(0, save.data["minigames"]["minesweeper"]["win"])
         self.nb_lost = max(0, save.data["minigames"]["minesweeper"]["lose"])
 
-        tk.Label(self.level_frame, text="Select Level: ", font=("Helvetica", 12)).pack(side=tk.LEFT)
         self.start_game("Easy")
 
     def start_game(self, level):

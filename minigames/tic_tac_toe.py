@@ -10,6 +10,7 @@ class TicTacToe:
     """This tic-tac-toe game is directly inspired from the following GitHub project: https://github.com/glsprasanthi/tkinter-mini-games/blob/main/tic_tac_toe.py"""
     NAME = 'Tic Tac Toe'
     PARENT_ENTITY = 'grandma'
+    HAS_TIE = True
 
     WIN_REWARD_SECONDS = 60
     TIE_REWARD_SECONDS = 20

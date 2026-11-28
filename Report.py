@@ -89,7 +89,9 @@ class Report:
         for i, game in enumerate(games):
             key = game.NAME.lower().replace(" ", "")
             stats = self.save.data["minigames"][key]
-            values = [stats["win"], stats["tie"], stats["lose"]]
+            values = [stats["win"], stats["lose"]]
+            if game.HAS_TIE:
+                values.append(stats["tie"])
 
             axes = figure.add_subplot(rows, 3, i + 1)
             axes.set_title(game.NAME)
@@ -97,6 +99,6 @@ class Report:
                 axes.axis("off")
                 axes.text(0.5, 0.5, "No games played yet", ha="center")
                 continue
-            draw_minigame_pie(axes, values)
+            draw_minigame_pie(axes, stats, game.HAS_TIE)
 
         return figure

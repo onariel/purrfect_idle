@@ -38,7 +38,6 @@ class JsonMGMT:
             },
             "minesweeper": {
                 "win": 0,
-                "tie": 0,
                 "lose": 0
             }
         },

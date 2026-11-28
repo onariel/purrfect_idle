@@ -17,7 +17,7 @@ class News:
     news_list: list
 
     SCROLL_STEP_PX: int = 1
-    SCROLL_FRAME_MS: int = 30
+    SCROLL_FRAME_MS: int = 20
 
     def __init__(self, parent: tk.Frame, row: int) -> None:
         self.parent = parent
