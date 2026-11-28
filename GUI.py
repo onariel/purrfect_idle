@@ -16,6 +16,7 @@ from tkinter import font as tkfont
 from Style import setup_style, FONTS
 from Nyan_cat import Nyancat
 from Tooltip import Tooltip
+from news.News import News
 
 
 class GUI:
@@ -67,8 +68,15 @@ class GUI:
         self.clicker_column = ttk.Frame(self.window, style="Card.TFrame", padding=10)
         self.clicker_column.grid(row=0, column=0, sticky="nsew", padx=(10, 5), pady=10)
 
-        self.information_column = ttk.Notebook(self.window)
-        self.information_column.grid(row=0, column=1, sticky="nsew", padx=5, pady=10)
+        self.main_column = ttk.Frame(self.window)
+        self.main_column.grid(row=0, column=1, sticky="nsew", padx=5, pady=10)
+        self.main_column.columnconfigure(0, weight=1)
+        self.main_column.rowconfigure(1, weight=1)
+
+        self.news = News(self.main_column, 0)
+
+        self.information_column = ttk.Notebook(self.main_column)
+        self.information_column.grid(row=1, column=0, sticky="nsew")
 
         self.entities_bought = ttk.Frame(self.information_column)
         self.statistics = ttk.Frame(self.information_column)
